@@ -39,7 +39,7 @@ groups:
 
       # Container Exit Code Non-Zero
       - alert: ContainerExitedWithError
-        expr: container_exit_code != 0 and container_exit_code != ""
+        expr: container_exit_code != 0
         for: 1m
         labels:
           severity: critical
