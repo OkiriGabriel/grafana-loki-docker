@@ -1,0 +1,165 @@
+groups:
+  - name: infrastructure
+    rules:
+      # High CPU Usage
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is above 80% for more than 5 minutes on {{ $labels.instance }}"
+
+      # High Memory Usage
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is above 85% for more than 5 minutes on {{ $labels.instance }}"
+
+      # High Disk Usage
+      - alert: HighDiskUsage
+        expr: (node_filesystem_size_bytes - node_filesystem_free_bytes) / node_filesystem_size_bytes * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "High disk usage on {{ $labels.instance }}"
+          description: "Disk usage is above 85% for more than 5 minutes on {{ $labels.instance }}"
+
+      # Node Down
+      - alert: NodeDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: infrastructure
+        annotations:
+          summary: "Node {{ $labels.instance }} is down"
+          description: "Node {{ $labels.instance }} has been down for more than 1 minute"
+
+  - name: services
+    rules:
+      # Service Down
+      - alert: ServiceDown
+        expr: up{job="blackbox"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: services
+        annotations:
+          summary: "Service {{ $labels.instance }} is down"
+          description: "Service {{ $labels.instance }} has been down for more than 1 minute"
+
+      # High Response Time
+      - alert: HighResponseTime
+        expr: probe_duration_seconds > 2
+        for: 5m
+        labels:
+          severity: warning
+          team: services
+        annotations:
+          summary: "High response time for {{ $labels.instance }}"
+          description: "Response time is above 2 seconds for {{ $labels.instance }}"
+
+      # High Error Rate
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) * 100 > 5
+        for: 5m
+        labels:
+          severity: warning
+          team: services
+        annotations:
+          summary: "High error rate for {{ $labels.instance }}"
+          description: "Error rate is above 5% for {{ $labels.instance }}"
+
+  - name: monitoring
+    rules:
+      # Prometheus Down
+      - alert: PrometheusDown
+        expr: up{job="prometheus"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: monitoring
+        annotations:
+          summary: "Prometheus is down"
+          description: "Prometheus has been down for more than 1 minute"
+
+      # Grafana Down
+      - alert: GrafanaDown
+        expr: up{job="grafana"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: monitoring
+        annotations:
+          summary: "Grafana is down"
+          description: "Grafana has been down for more than 1 minute"
+
+      # Loki Down
+      - alert: LokiDown
+        expr: up{job="loki"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: monitoring
+        annotations:
+          summary: "Loki is down"
+          description: "Loki has been down for more than 1 minute"
+
+      # Alertmanager Down
+      - alert: AlertmanagerDown
+        expr: up{job="alertmanager"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: monitoring
+        annotations:
+          summary: "Alertmanager is down"
+          description: "Alertmanager has been down for more than 1 minute"
+
+  - name: business
+    rules:
+      # Remittance Transaction Failure Rate
+      - alert: RemittanceHighFailureRate
+        expr: rate(remittance_transactions_total{status="failed"}[5m]) / rate(remittance_transactions_total[5m]) * 100 > 10
+        for: 5m
+        labels:
+          severity: warning
+          team: business
+          product: remittance
+        annotations:
+          summary: "High remittance transaction failure rate"
+          description: "Remittance transaction failure rate is above 10%"
+
+      # Collection API High Latency
+      - alert: CollectionHighLatency
+        expr: histogram_quantile(0.95, rate(collection_api_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+          team: business
+          product: collection
+        annotations:
+          summary: "High collection API latency"
+          description: "95th percentile latency is above 1 second for collection API"
+
+      # Agency Banking Login Issues
+      - alert: AgencyLoginIssues
+        expr: rate(agency_login_attempts_total{status="failed"}[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          team: business
+          product: agency
+        annotations:
+          summary: "High agency banking login failures"
+          description: "More than 10 failed login attempts per minute for agency banking" 

@@ -1,0 +1,215 @@
+groups:
+  - name: docker-container-health
+    rules:
+      # Container Down/Stopped
+      - alert: ContainerDown
+        expr: container_last_seen - on(container) group_left(container) container_start_time_seconds > 0 and (time() - container_last_seen) > 60
+        for: 1m
+        labels:
+          severity: critical
+          team: infrastructure
+          type: container
+        annotations:
+          summary: "Container {{ $labels.container }} is down"
+          description: "Container {{ $labels.container }} has been down for more than 1 minute"
+
+      # Container Restarting Frequently
+      - alert: ContainerRestarting
+        expr: increase(container_start_time_seconds[15m]) > 5
+        for: 5m
+        labels:
+          severity: warning
+          team: infrastructure
+          type: container
+        annotations:
+          summary: "Container {{ $labels.container }} is restarting frequently"
+          description: "Container {{ $labels.container }} has restarted more than 5 times in the last 15 minutes"
+
+      # Container in Restarting State
+      - alert: ContainerInRestartingState
+        expr: container_state{state="running"} == 0 and container_state{state="exited"} == 0
+        for: 2m
+        labels:
+          severity: warning
+          team: infrastructure
+          type: container
+        annotations:
+          summary: "Container {{ $labels.container }} is in restarting state"
+          description: "Container {{ $labels.container }} is neither running nor exited (likely restarting)"
+
+      # Container Exit Code Non-Zero
+      - alert: ContainerExitedWithError
+        expr: container_last_seen - on(container) group_left(container) container_start_time_seconds > 0 and (time() - container_last_seen) > 30 and container_exit_code != 0
+        for: 1m
+        labels:
+          severity: critical
+          team: infrastructure
+          type: container
+        annotations:
+          summary: "Container {{ $labels.container }} exited with error code {{ $value }}"
+          description: "Container {{ $labels.container }} exited with non-zero exit code {{ $value }}"
+
+      # Container High Memory Usage
+      - alert: ContainerHighMemoryUsage
+        expr: (container_memory_usage_bytes / container_spec_memory_limit_bytes * 100) > 85
+        for: 5m
+        labels:
+          severity: warning
+          team: infrastructure
+          type: container
+        annotations:
+          summary: "Container {{ $labels.container }} high memory usage"
+          description: "Container {{ $labels.container }} is using more than 85% of memory limit"
+
+      # Container High CPU Usage
+      - alert: ContainerHighCPUUsage
+        expr: rate(container_cpu_usage_seconds_total[5m]) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          team: infrastructure
+          type: container
+        annotations:
+          summary: "Container {{ $labels.container }} high CPU usage"
+          description: "Container {{ $labels.container }} is using more than 80% CPU"
+
+  - name: docker-business-failures
+    rules:
+      # Failed Transactions - Remittance
+      - alert: RemittanceTransactionFailures
+        expr: rate(remittance_transactions_total{status="failed"}[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+          team: business
+          product: remittance
+          type: transaction_failure
+        annotations:
+          summary: "High remittance transaction failures"
+          description: "Remittance service is experiencing {{ $value }} failed transactions per second"
+
+      # Failed Transactions - Collection
+      - alert: CollectionTransactionFailures
+        expr: rate(collection_transactions_total{status="failed"}[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+          team: business
+          product: collection
+          type: transaction_failure
+        annotations:
+          summary: "High collection transaction failures"
+          description: "Collection service is experiencing {{ $value }} failed transactions per second"
+
+      # Failed Transactions - Agency Banking
+      - alert: AgencyTransactionFailures
+        expr: rate(agency_transactions_total{status="failed"}[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+          team: business
+          product: agency
+          type: transaction_failure
+        annotations:
+          summary: "High agency banking transaction failures"
+          description: "Agency banking service is experiencing {{ $value }} failed transactions per second"
+
+      # API Error Rate High
+      - alert: APIErrorRateHigh
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) * 100 > 10
+        for: 3m
+        labels:
+          severity: warning
+          team: services
+          type: api_error
+        annotations:
+          summary: "High API error rate for {{ $labels.service }}"
+          description: "API error rate is {{ $value }}% for {{ $labels.service }}"
+
+      # Database Connection Failures
+      - alert: DatabaseConnectionFailures
+        expr: rate(database_connection_failures_total[5m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+          team: infrastructure
+          type: database
+        annotations:
+          summary: "Database connection failures detected"
+          description: "Database connection failures are occurring at {{ $value }} per second"
+
+  - name: docker-application-health
+    rules:
+      # Application Health Check Failed
+      - alert: ApplicationHealthCheckFailed
+        expr: up{job="application-health"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: services
+          type: application_health
+        annotations:
+          summary: "Application health check failed for {{ $labels.instance }}"
+          description: "Application health check endpoint is not responding"
+
+      # Application Response Time High
+      - alert: ApplicationResponseTimeHigh
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+          team: services
+          type: performance
+        annotations:
+          summary: "High application response time for {{ $labels.service }}"
+          description: "95th percentile response time is {{ $value }} seconds"
+
+      # Application Memory Leak
+      - alert: ApplicationMemoryLeak
+        expr: increase(container_memory_usage_bytes[1h]) > 100000000
+        for: 10m
+        labels:
+          severity: warning
+          team: infrastructure
+          type: memory_leak
+        annotations:
+          summary: "Possible memory leak in {{ $labels.container }}"
+          description: "Container {{ $labels.container }} memory usage increased by {{ $value }} bytes in the last hour"
+
+  - name: docker-infrastructure
+    rules:
+      # Docker Daemon Issues
+      - alert: DockerDaemonDown
+        expr: up{job="docker"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: infrastructure
+          type: docker_daemon
+        annotations:
+          summary: "Docker daemon is down on {{ $labels.instance }}"
+          description: "Docker daemon is not responding on {{ $labels.instance }}"
+
+      # Docker Disk Space Low
+      - alert: DockerDiskSpaceLow
+        expr: (node_filesystem_avail_bytes{mountpoint="/var/lib/docker"} / node_filesystem_size_bytes{mountpoint="/var/lib/docker"} * 100) < 10
+        for: 5m
+        labels:
+          severity: warning
+          team: infrastructure
+          type: disk_space
+        annotations:
+          summary: "Low disk space for Docker on {{ $labels.instance }}"
+          description: "Docker disk space is below 10% on {{ $labels.instance }}"
+
+      # Too Many Containers
+      - alert: TooManyContainers
+        expr: count(container_cpu_usage_seconds_total) > 50
+        for: 5m
+        labels:
+          severity: warning
+          team: infrastructure
+          type: resource_limit
+        annotations:
+          summary: "Too many containers running on {{ $labels.instance }}"
+          description: "More than 50 containers are running on {{ $labels.instance }}" 

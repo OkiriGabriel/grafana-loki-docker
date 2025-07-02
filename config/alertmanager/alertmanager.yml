@@ -1,0 +1,126 @@
+global:
+  resolve_timeout: 5m
+  slack_api_url: 'https://hooks.slack.com/services/YOUR_SLACK_WEBHOOK_URL'
+  smtp_smarthost: 'smtp.gmail.com:587'
+  smtp_from: 'alerts@yourcompany.com'
+  smtp_auth_username: 'alerts@yourcompany.com'
+  smtp_auth_password: 'your-app-password'
+
+route:
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'slack-notifications'
+  routes:
+    # Critical alerts go to Slack immediately
+    - match:
+        severity: critical
+      receiver: 'slack-critical'
+      continue: true
+      group_wait: 0s
+      repeat_interval: 5m
+    
+    # Warning alerts go to email
+    - match:
+        severity: warning
+      receiver: 'email-notifications'
+      continue: true
+    
+    # Business team alerts
+    - match:
+        team: business
+      receiver: 'business-team'
+      continue: true
+    
+    # Infrastructure team alerts
+    - match:
+        team: infrastructure
+      receiver: 'infrastructure-team'
+      continue: true
+    
+    # Services team alerts
+    - match:
+        team: services
+      receiver: 'services-team'
+      continue: true
+
+receivers:
+  - name: 'slack-notifications'
+    slack_configs:
+      - channel: '#monitoring'
+        title: '{{ template "slack.title" . }}'
+        text: '{{ template "slack.text" . }}'
+        send_resolved: true
+        icon_url: 'https://grafana.com/static/assets/img/logo_new_transparent_400x.png'
+        actions:
+          - type: button
+            text: 'View in Grafana'
+            url: '{{ template "slack.grafanaURL" . }}'
+
+  - name: 'slack-critical'
+    slack_configs:
+      - channel: '#alerts-critical'
+        title: '🚨 CRITICAL: {{ template "slack.title" . }}'
+        text: '{{ template "slack.text" . }}'
+        send_resolved: true
+        icon_emoji: ':rotating_light:'
+        actions:
+          - type: button
+            text: 'View in Grafana'
+            url: '{{ template "slack.grafanaURL" . }}'
+
+  - name: 'email-notifications'
+    email_configs:
+      - to: 'devops@yourcompany.com'
+        headers:
+          subject: 'Monitoring Alert: {{ template "email.subject" . }}'
+        html: '{{ template "email.html" . }}'
+        send_resolved: true
+
+  - name: 'business-team'
+    slack_configs:
+      - channel: '#business-alerts'
+        title: '{{ template "slack.title" . }}'
+        text: '{{ template "slack.text" . }}'
+        send_resolved: true
+    email_configs:
+      - to: 'business@yourcompany.com'
+        headers:
+          subject: 'Business Alert: {{ template "email.subject" . }}'
+        html: '{{ template "email.html" . }}'
+        send_resolved: true
+
+  - name: 'infrastructure-team'
+    slack_configs:
+      - channel: '#infrastructure-alerts'
+        title: '{{ template "slack.title" . }}'
+        text: '{{ template "slack.text" . }}'
+        send_resolved: true
+    email_configs:
+      - to: 'infrastructure@yourcompany.com'
+        headers:
+          subject: 'Infrastructure Alert: {{ template "email.subject" . }}'
+        html: '{{ template "email.html" . }}'
+        send_resolved: true
+
+  - name: 'services-team'
+    slack_configs:
+      - channel: '#services-alerts'
+        title: '{{ template "slack.title" . }}'
+        text: '{{ template "slack.text" . }}'
+        send_resolved: true
+    email_configs:
+      - to: 'services@yourcompany.com'
+        headers:
+          subject: 'Services Alert: {{ template "email.subject" . }}'
+        html: '{{ template "email.html" . }}'
+        send_resolved: true
+
+inhibit_rules:
+  # Inhibit critical alerts if the node is down
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'instance'] 

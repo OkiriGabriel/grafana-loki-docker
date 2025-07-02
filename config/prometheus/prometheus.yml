@@ -1,0 +1,94 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'monitoring-stack'
+
+rule_files:
+  - "rules/*.yml"
+  - "rules/docker-alerts.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Node Exporter - System metrics
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  # Cadvisor - Container metrics
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+
+  # Blackbox Exporter - API uptime checks
+  - job_name: 'blackbox'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+        - https://api.example.com/health
+        - https://api.example.com/v1/status
+        - https://remittance.example.com/health
+        - https://collection.example.com/health
+        - https://agency.example.com/health
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # Loki - Log metrics
+  - job_name: 'loki'
+    static_configs:
+      - targets: ['loki:3100']
+
+  # Alertmanager
+  - job_name: 'alertmanager'
+    static_configs:
+      - targets: ['alertmanager:9093']
+
+  # Grafana
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']
+
+  # EC2 Instances (replace with your actual EC2 private IPs)
+  - job_name: 'ec2-instances'
+    static_configs:
+      - targets:
+        - '10.0.1.10:9100'  # Replace with your EC2 private IPs
+        - '10.0.1.11:9100'
+        - '10.0.1.12:9100'
+    scrape_interval: 30s
+
+  # DigitalOcean Droplets (replace with your actual droplet IPs)
+  - job_name: 'digitalocean-droplets'
+    static_configs:
+      - targets:
+        - '192.168.1.10:9100'  # Replace with your droplet IPs
+        - '192.168.1.11:9100'
+        - '192.168.1.12:9100'
+    scrape_interval: 30s
+
+  # Application Services (replace with your actual service endpoints)
+  - job_name: 'application-services'
+    static_configs:
+      - targets:
+        - 'app-server-1:8080'  # Replace with your app endpoints
+        - 'app-server-2:8080'
+        - 'app-server-3:8080'
+    metrics_path: /metrics
+    scrape_interval: 30s 

@@ -1,0 +1,153 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Service Health & API Monitoring",
+    "tags": ["services", "api", "monitoring"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Service Uptime Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "up{job=\"blackbox\"}",
+            "legendFormat": "{{instance}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "green", "value": 1}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Response Time by Service",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "probe_duration_seconds",
+            "legendFormat": "{{instance}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear"
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4}
+      },
+      {
+        "id": 3,
+        "title": "HTTP Status Codes",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "probe_http_status_code",
+            "legendFormat": "{{instance}} - {{code}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear"
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4}
+      },
+      {
+        "id": 4,
+        "title": "SSL Certificate Expiry",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "probe_ssl_earliest_cert_expiry - time()",
+            "legendFormat": "{{instance}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear"
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12}
+      },
+      {
+        "id": 5,
+        "title": "Service Availability %",
+        "type": "gauge",
+        "targets": [
+          {
+            "expr": "avg(up{job=\"blackbox\"}) * 100",
+            "legendFormat": "Overall Availability"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100,
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "yellow", "value": 95},
+                {"color": "green", "value": 99}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 12, "y": 12}
+      },
+      {
+        "id": 6,
+        "title": "Failed Probes (Last Hour)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(increase(up{job=\"blackbox\"} == 0[1h]))",
+            "legendFormat": "Failed Probes"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "colorMode": "value",
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 1},
+                {"color": "red", "value": 5}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 4, "w": 6, "x": 18, "y": 12}
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "30s"
+  }
+} 

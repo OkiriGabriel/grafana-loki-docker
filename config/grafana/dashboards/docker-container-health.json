@@ -1,0 +1,350 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Docker Container Health & Failures",
+    "tags": ["docker", "containers", "health", "failures"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Container Status Overview",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "count(container_cpu_usage_seconds_total)",
+            "legendFormat": "Total Containers"
+          },
+          {
+            "expr": "count(container_state{state=\"running\"})",
+            "legendFormat": "Running"
+          },
+          {
+            "expr": "count(container_state{state=\"exited\"})",
+            "legendFormat": "Exited"
+          },
+          {
+            "expr": "count(container_state{state=\"created\"})",
+            "legendFormat": "Created"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "colorMode": "value",
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 1},
+                {"color": "red", "value": 5}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Container Restart Count (Last Hour)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "increase(container_start_time_seconds[1h])",
+            "legendFormat": "{{container}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "custom": {
+              "drawStyle": "bars",
+              "lineInterpolation": "linear"
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4}
+      },
+      {
+        "id": 3,
+        "title": "Container Exit Codes",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "container_exit_code",
+            "format": "table",
+            "instant": true
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "colorMode": "value",
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "red", "value": 1}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4}
+      },
+      {
+        "id": 4,
+        "title": "Failed Transactions by Service",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(remittance_transactions_total{status=\"failed\"}[5m])",
+            "legendFormat": "Remittance - Failed"
+          },
+          {
+            "expr": "rate(collection_transactions_total{status=\"failed\"}[5m])",
+            "legendFormat": "Collection - Failed"
+          },
+          {
+            "expr": "rate(agency_transactions_total{status=\"failed\"}[5m])",
+            "legendFormat": "Agency - Failed"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear"
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12}
+      },
+      {
+        "id": 5,
+        "title": "Transaction Success Rate",
+        "type": "gauge",
+        "targets": [
+          {
+            "expr": "(rate(remittance_transactions_total{status=\"success\"}[5m]) / rate(remittance_transactions_total[5m])) * 100",
+            "legendFormat": "Remittance Success Rate"
+          },
+          {
+            "expr": "(rate(collection_transactions_total{status=\"success\"}[5m]) / rate(collection_transactions_total[5m])) * 100",
+            "legendFormat": "Collection Success Rate"
+          },
+          {
+            "expr": "(rate(agency_transactions_total{status=\"success\"}[5m]) / rate(agency_transactions_total[5m])) * 100",
+            "legendFormat": "Agency Success Rate"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100,
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "yellow", "value": 95},
+                {"color": "green", "value": 99}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12}
+      },
+      {
+        "id": 6,
+        "title": "Container Memory Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "(container_memory_usage_bytes / container_spec_memory_limit_bytes * 100)",
+            "legendFormat": "{{container}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100,
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 80},
+                {"color": "red", "value": 90}
+              ]
+            },
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear"
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 20}
+      },
+      {
+        "id": 7,
+        "title": "Container CPU Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(container_cpu_usage_seconds_total[5m]) * 100",
+            "legendFormat": "{{container}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100,
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 70},
+                {"color": "red", "value": 90}
+              ]
+            },
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear"
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 20}
+      },
+      {
+        "id": 8,
+        "title": "API Error Rate by Service",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total{status=~\"5..\"}[5m]) / rate(http_requests_total[5m]) * 100",
+            "legendFormat": "{{service}} - {{endpoint}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear"
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 28}
+      },
+      {
+        "id": 9,
+        "title": "Container Log Errors (Last Hour)",
+        "type": "logs",
+        "targets": [
+          {
+            "expr": "{job=\"docker\"} |= \"error\" | json",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "lineWidth": 1,
+              "fillOpacity": 0
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 28}
+      },
+      {
+        "id": 10,
+        "title": "Failed Transaction Logs",
+        "type": "logs",
+        "targets": [
+          {
+            "expr": "{job=~\"remittance|collection|agency\"} |= \"failed\" | json",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "lineWidth": 1,
+              "fillOpacity": 0
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 36}
+      },
+      {
+        "id": 11,
+        "title": "Container Restart History",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "topk(10, increase(container_start_time_seconds[1h]))",
+            "format": "table",
+            "instant": true
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 44}
+      },
+      {
+        "id": 12,
+        "title": "Database Connection Failures",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(database_connection_failures_total[5m])",
+            "legendFormat": "{{service}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear"
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 44}
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "30s",
+    "templating": {
+      "list": [
+        {
+          "name": "container",
+          "type": "query",
+          "query": "label_values(container_cpu_usage_seconds_total, container)",
+          "refresh": 1,
+          "includeAll": true,
+          "multi": true
+        },
+        {
+          "name": "service",
+          "type": "query",
+          "query": "label_values(http_requests_total, service)",
+          "refresh": 1,
+          "includeAll": true,
+          "multi": true
+        },
+        {
+          "name": "product",
+          "type": "query",
+          "query": "label_values(remittance_transactions_total, product)",
+          "refresh": 1,
+          "includeAll": true,
+          "multi": true
+        }
+      ]
+    }
+  }
+} 

@@ -1,0 +1,275 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Business Metrics - Financial Products",
+    "tags": ["business", "financial", "products"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Remittance Transaction Volume",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(remittance_transactions_total[5m])",
+            "legendFormat": "{{status}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear"
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Remittance Success Rate",
+        "type": "gauge",
+        "targets": [
+          {
+            "expr": "(rate(remittance_transactions_total{status=\"success\"}[5m]) / rate(remittance_transactions_total[5m])) * 100",
+            "legendFormat": "Success Rate %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100,
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "yellow", "value": 95},
+                {"color": "green", "value": 99}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 12, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Remittance Transaction Amount",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(remittance_amount_total[5m])",
+            "legendFormat": "Amount per second"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyUSD",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear"
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 18, "y": 0}
+      },
+      {
+        "id": 4,
+        "title": "Collection API Response Time",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(collection_api_duration_seconds_bucket[5m]))",
+            "legendFormat": "95th percentile"
+          },
+          {
+            "expr": "histogram_quantile(0.50, rate(collection_api_duration_seconds_bucket[5m]))",
+            "legendFormat": "50th percentile"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear"
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+      },
+      {
+        "id": 5,
+        "title": "Collection Job Duration",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(collection_job_duration_seconds_bucket[5m]))",
+            "legendFormat": "95th percentile"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear"
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+      },
+      {
+        "id": 6,
+        "title": "Agency Banking Login Attempts",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(agency_login_attempts_total[5m])",
+            "legendFormat": "{{status}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear"
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16}
+      },
+      {
+        "id": 7,
+        "title": "Agency Login Success Rate",
+        "type": "gauge",
+        "targets": [
+          {
+            "expr": "(rate(agency_login_attempts_total{status=\"success\"}[5m]) / rate(agency_login_attempts_total[5m])) * 100",
+            "legendFormat": "Success Rate %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100,
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "yellow", "value": 90},
+                {"color": "green", "value": 95}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 12, "y": 16}
+      },
+      {
+        "id": 8,
+        "title": "Active Agency Sessions",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "agency_active_sessions",
+            "legendFormat": "Active Sessions"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          }
+        },
+        "gridPos": {"h": 4, "w": 6, "x": 18, "y": 16}
+      },
+      {
+        "id": 9,
+        "title": "Error Rate by Service",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total{status=~\"5..\"}[5m]) / rate(http_requests_total[5m]) * 100",
+            "legendFormat": "{{service}} - {{endpoint}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear"
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24}
+      },
+      {
+        "id": 10,
+        "title": "Transaction Processing Time",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(transaction_processing_duration_seconds_bucket[5m]))",
+            "legendFormat": "Remittance - 95th percentile"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(collection_processing_duration_seconds_bucket[5m]))",
+            "legendFormat": "Collection - 95th percentile"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear"
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24}
+      },
+      {
+        "id": 11,
+        "title": "Daily Transaction Summary",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "sum by (product) (increase(transactions_total[24h]))",
+            "format": "table",
+            "instant": true
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 32}
+      },
+      {
+        "id": 12,
+        "title": "Revenue by Product",
+        "type": "piechart",
+        "targets": [
+          {
+            "expr": "sum by (product) (increase(revenue_total[24h]))",
+            "legendFormat": "{{product}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyUSD"
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 32}
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "30s"
+  }
+} 
