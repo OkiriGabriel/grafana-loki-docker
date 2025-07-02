@@ -1,0 +1,129 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'monitoring-stack'
+
+rule_files:
+  - "rules/*.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Node Exporter - System metrics
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  # Cadvisor - Container metrics
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+
+  # Blackbox Exporter - Production API uptime checks
+  - job_name: 'blackbox-production'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+        # Production APIs
+        - https://api.bpay.africa
+        - https://remitbridge.banffapi.com
+        - https://collections-api-gateway-prod.banffapi.com
+        - https://core.banffapi.com
+        - https://prod.banffapi.com
+        - https://momo.banffapi.com
+        - https://cba.banffapi.com
+        - https://fineract.banffapi.com
+        - https://banffycollect.banffpay.com
+        - https://api-banffycollect.banffpay.com
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+      - target_label: environment
+        replacement: production
+
+  # Blackbox Exporter - Staging API uptime checks
+  - job_name: 'blackbox-staging'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+        # Staging APIs
+        - https://staging.banffapi.com
+        - https://remitbridge-staging.banffapi.com
+        - https://staging-collections-api-gateway.banffapi.com
+        - https://core-staging.banffapi.com
+        - https://cbi-dev.banffapi.com
+        - https://orangemoney-staging.banffapi.com
+        - https://remitone-dev.banffapi.com
+        - https://notification-dev.banffapi.com
+        - https://partner.banffapi.com
+        - https://cba-staging.banffapi.com
+        - https://compliance.bpay.africa
+        - https://api-exchange.bpay.africa
+        - https://business.bpay.africa
+        - https://exchange.bpay.africa
+        - https://admin.bpay.africa
+        - https://epin.bpay.africa
+        - https://api-epin.bpay.africa
+        - https://dev-collections.bpay.africa
+        - https://partners.bpay.africa
+        - https://api-devcollections.bpay.africa
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+      - target_label: environment
+        replacement: staging
+
+  # Loki - Log metrics
+  - job_name: 'loki'
+    static_configs:
+      - targets: ['loki:3100']
+
+  # Alertmanager
+  - job_name: 'alertmanager'
+    static_configs:
+      - targets: ['alertmanager:9093']
+
+  # Grafana
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']
+
+  # EC2 Instances (replace with your actual EC2 private IPs)
+  - job_name: 'ec2-instances'
+    static_configs:
+      - targets:
+        - '10.0.1.10:9100'  # Replace with your EC2 private IPs
+        - '10.0.1.11:9100'
+        - '10.0.1.12:9100'
+    scrape_interval: 30s
+
+  # DigitalOcean Droplets (replace with your actual droplet IPs)
+  - job_name: 'digitalocean-droplets'
+    static_configs:
+      - targets:
+        - '192.168.1.10:9100'  # Replace with your droplet IPs
+        - '192.168.1.11:9100'
+        - '192.168.1.12:9100'
+    scrape_interval: 30s 
