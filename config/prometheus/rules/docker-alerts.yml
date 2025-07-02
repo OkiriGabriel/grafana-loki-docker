@@ -3,7 +3,7 @@ groups:
     rules:
       # Container Down/Stopped
       - alert: ContainerDown
-        expr: container_last_seen - on(container) group_left(container) container_start_time_seconds > 0 and (time() - container_last_seen) > 60
+        expr: (time() - container_last_seen) > 60
         for: 1m
         labels:
           severity: critical
@@ -39,7 +39,7 @@ groups:
 
       # Container Exit Code Non-Zero
       - alert: ContainerExitedWithError
-        expr: container_last_seen - on(container) group_left(container) container_start_time_seconds > 0 and (time() - container_last_seen) > 30 and container_exit_code != 0
+        expr: container_exit_code != 0 and container_exit_code != ""
         for: 1m
         labels:
           severity: critical
