@@ -40,6 +40,8 @@ services:
     restart: unless-stopped
     ports:
       - "9090:9090"
+    environment:
+      - HOSTNAME=${HOSTNAME:-$(hostname)}
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'

@@ -26,11 +26,15 @@ scrape_configs:
     static_configs:
       - targets: ['node-exporter:9100']
     relabel_configs:
-      # Set proper hostname for node metrics
+      # Get hostname from node_uname_info metric
       - source_labels: [__address__]
-        target_label: instance
+        target_label: __tmp_address
         regex: 'node-exporter:9100'
-        replacement: 'bpay-logging-and-monitoring'
+        replacement: '${1}'
+      - source_labels: [__tmp_address]
+        target_label: instance
+        regex: '.*'
+        replacement: '${HOSTNAME}'
         action: replace
       # Set hostname label for better display
       - source_labels: [instance]
@@ -42,11 +46,15 @@ scrape_configs:
     static_configs:
       - targets: ['cadvisor:8080']
     relabel_configs:
-      # Set proper hostname for container metrics
+      # Get hostname from container metrics
       - source_labels: [__address__]
-        target_label: instance
+        target_label: __tmp_address
         regex: 'cadvisor:8080'
-        replacement: 'bpay-logging-and-monitoring'
+        replacement: '${1}'
+      - source_labels: [__tmp_address]
+        target_label: instance
+        regex: '.*'
+        replacement: '${HOSTNAME}'
         action: replace
       # Set hostname label for better display
       - source_labels: [instance]
