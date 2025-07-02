@@ -9,9 +9,12 @@ groups:
           severity: critical
           team: infrastructure
           type: container
+          container: "{{ $labels.name }}"
+          hostname: "{{ $labels.instance }}"
+          app: "{{ $labels.job }}"
         annotations:
-          summary: "Container {{ $labels.container }} is down"
-          description: "Container {{ $labels.container }} has been down for more than 1 minute"
+          summary: "Container {{ $labels.name }} is down"
+          description: "Container {{ $labels.name }} has been down for more than 1 minute on host {{ $labels.instance }}"
 
       # Container Restarting Frequently
       - alert: ContainerRestarting
@@ -21,9 +24,12 @@ groups:
           severity: warning
           team: infrastructure
           type: container
+          container: "{{ $labels.name }}"
+          hostname: "{{ $labels.instance }}"
+          app: "{{ $labels.job }}"
         annotations:
-          summary: "Container {{ $labels.container }} is restarting frequently"
-          description: "Container {{ $labels.container }} has restarted more than 5 times in the last 15 minutes"
+          summary: "Container {{ $labels.name }} is restarting frequently"
+          description: "Container {{ $labels.name }} has restarted more than 5 times in the last 15 minutes on host {{ $labels.instance }}"
 
       # Container in Restarting State
       - alert: ContainerInRestartingState
@@ -33,9 +39,12 @@ groups:
           severity: warning
           team: infrastructure
           type: container
+          container: "{{ $labels.name }}"
+          hostname: "{{ $labels.instance }}"
+          app: "{{ $labels.job }}"
         annotations:
-          summary: "Container {{ $labels.container }} is in restarting state"
-          description: "Container {{ $labels.container }} is neither running nor exited (likely restarting)"
+          summary: "Container {{ $labels.name }} is in restarting state"
+          description: "Container {{ $labels.name }} is neither running nor exited (likely restarting) on host {{ $labels.instance }}"
 
       # Container Exit Code Non-Zero
       - alert: ContainerExitedWithError
@@ -45,9 +54,12 @@ groups:
           severity: critical
           team: infrastructure
           type: container
+          container: "{{ $labels.name }}"
+          hostname: "{{ $labels.instance }}"
+          app: "{{ $labels.job }}"
         annotations:
-          summary: "Container {{ $labels.container }} exited with error code {{ $value }}"
-          description: "Container {{ $labels.container }} exited with non-zero exit code {{ $value }}"
+          summary: "Container {{ $labels.name }} exited with error code {{ $value }}"
+          description: "Container {{ $labels.name }} exited with non-zero exit code {{ $value }} on host {{ $labels.instance }}"
 
       # Container High Memory Usage
       - alert: ContainerHighMemoryUsage
@@ -57,9 +69,12 @@ groups:
           severity: warning
           team: infrastructure
           type: container
+          container: "{{ $labels.name }}"
+          hostname: "{{ $labels.instance }}"
+          app: "{{ $labels.job }}"
         annotations:
-          summary: "Container {{ $labels.container }} high memory usage"
-          description: "Container {{ $labels.container }} is using more than 85% of memory limit"
+          summary: "Container {{ $labels.name }} high memory usage"
+          description: "Container {{ $labels.name }} is using more than 85% of memory limit on host {{ $labels.instance }}"
 
       # Container High CPU Usage
       - alert: ContainerHighCPUUsage
@@ -69,9 +84,12 @@ groups:
           severity: warning
           team: infrastructure
           type: container
+          container: "{{ $labels.name }}"
+          hostname: "{{ $labels.instance }}"
+          app: "{{ $labels.job }}"
         annotations:
-          summary: "Container {{ $labels.container }} high CPU usage"
-          description: "Container {{ $labels.container }} is using more than 80% CPU"
+          summary: "Container {{ $labels.name }} high CPU usage"
+          description: "Container {{ $labels.name }} is using more than 80% CPU on host {{ $labels.instance }}"
 
   - name: docker-business-failures
     rules:
@@ -172,9 +190,12 @@ groups:
           severity: warning
           team: infrastructure
           type: memory_leak
+          container: "{{ $labels.name }}"
+          hostname: "{{ $labels.instance }}"
+          app: "{{ $labels.job }}"
         annotations:
-          summary: "Possible memory leak in {{ $labels.container }}"
-          description: "Container {{ $labels.container }} memory usage increased by {{ $value }} bytes in the last hour"
+          summary: "Possible memory leak in {{ $labels.name }}"
+          description: "Container {{ $labels.name }} memory usage increased by {{ $value }} bytes in the last hour on host {{ $labels.instance }}"
 
   - name: docker-infrastructure
     rules:
