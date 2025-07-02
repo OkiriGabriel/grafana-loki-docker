@@ -1,6 +1,6 @@
   global:
     resolve_timeout: 5m
-    slack_api_url: 'https://hooks.slack.com/services/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'
+    slack_api_url: 'https://hooks.slack.com/services/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'
   route:
     group_by: ['alertname', 'cluster', 'service']
     group_wait: 10s
@@ -43,7 +43,7 @@
   receivers:
     - name: 'slack-notifications'
       slack_configs:
-        - channel: '#alerts'
+        - channel: '#logs'
           title: '{{ .Status | toUpper }}: {{ .CommonLabels.alertname }}'
           text: |
             *Status:* {{ .Status | toUpper }}
@@ -62,7 +62,7 @@
 
     - name: 'slack-critical'
       slack_configs:
-        - channel: '#alerts'
+        - channel: '#logs'
           title: '🚨 CRITICAL: {{ .CommonLabels.alertname }}'
           text: |
             *Status:* {{ .Status | toUpper }}
@@ -83,7 +83,7 @@
 
     - name: 'business-team'
       slack_configs:
-        - channel: '#alerts'
+        - channel: '#logs'
           title: '{{ .Status | toUpper }}: {{ .CommonLabels.alertname }}'
           text: |
             *Status:* {{ .Status | toUpper }}
@@ -97,7 +97,7 @@
 
     - name: 'infrastructure-team'
       slack_configs:
-        - channel: '#alerts'
+        - channel: '#logs'
           title: '{{ .Status | toUpper }}: {{ .CommonLabels.alertname }}'
           text: |
             *Status:* {{ .Status | toUpper }}
@@ -111,7 +111,7 @@
 
     - name: 'services-team'
       slack_configs:
-        - channel: '#alerts'
+        - channel: '#logs'
           title: '{{ .Status | toUpper }}: {{ .CommonLabels.alertname }}'
           text: |
             *Status:* {{ .Status | toUpper }}
