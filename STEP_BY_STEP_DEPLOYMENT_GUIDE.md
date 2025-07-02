@@ -119,8 +119,9 @@ curl -s ipinfo.io/ip
 
 **Alert Configuration:**
 - Slack webhook URL: `https://hooks.slack.com/services/YOUR/WEBHOOK/URL`
-- Email address: `alerts@yourcompany.com`
+- Primary email address: `alerts@yourcompany.com`
 - Email password: `your-app-password` (use app password for Gmail)
+- Additional email addresses: `devops@company.com,admin@company.com,tech@company.com` (comma-separated, optional)
 
 **API Endpoints:**
 - ✅ **Pre-configured** for both staging and production environments

@@ -82,12 +82,31 @@ done
 # Update Alertmanager configuration
 print_status "Configuring Alertmanager..."
 read -p "Enter your Slack webhook URL: " SLACK_WEBHOOK
-read -p "Enter your email address for alerts: " EMAIL_ADDRESS
+read -p "Enter your primary email address for alerts: " EMAIL_ADDRESS
 read -p "Enter your email password (app password for Gmail): " EMAIL_PASSWORD
+read -p "Enter additional email addresses (comma-separated, or press Enter for none): " ADDITIONAL_EMAILS
 
 sed -i "s|YOUR_SLACK_WEBHOOK_URL|$SLACK_WEBHOOK|g" config/alertmanager/alertmanager.yml
 sed -i "s/alerts@yourcompany.com/$EMAIL_ADDRESS/g" config/alertmanager/alertmanager.yml
 sed -i "s/your-app-password/$EMAIL_PASSWORD/g" config/alertmanager/alertmanager.yml
+
+# Update additional email addresses if provided
+if [ ! -z "$ADDITIONAL_EMAILS" ]; then
+    # Convert comma-separated emails to space-separated for sed
+    ADDITIONAL_EMAILS_SED=$(echo "$ADDITIONAL_EMAILS" | sed 's/,/ /g')
+    
+    # Update email configurations with additional recipients
+    sed -i "s/to: 'devops@yourcompany.com'/to: '$EMAIL_ADDRESS, $ADDITIONAL_EMAILS_SED'/g" config/alertmanager/alertmanager.yml
+    sed -i "s/to: 'business@yourcompany.com'/to: '$EMAIL_ADDRESS, $ADDITIONAL_EMAILS_SED'/g" config/alertmanager/alertmanager.yml
+    sed -i "s/to: 'infrastructure@yourcompany.com'/to: '$EMAIL_ADDRESS, $ADDITIONAL_EMAILS_SED'/g" config/alertmanager/alertmanager.yml
+    sed -i "s/to: 'services@yourcompany.com'/to: '$EMAIL_ADDRESS, $ADDITIONAL_EMAILS_SED'/g" config/alertmanager/alertmanager.yml
+else
+    # Update with just the primary email
+    sed -i "s/to: 'devops@yourcompany.com'/to: '$EMAIL_ADDRESS'/g" config/alertmanager/alertmanager.yml
+    sed -i "s/to: 'business@yourcompany.com'/to: '$EMAIL_ADDRESS'/g" config/alertmanager/alertmanager.yml
+    sed -i "s/to: 'infrastructure@yourcompany.com'/to: '$EMAIL_ADDRESS'/g" config/alertmanager/alertmanager.yml
+    sed -i "s/to: 'services@yourcompany.com'/to: '$EMAIL_ADDRESS'/g" config/alertmanager/alertmanager.yml
+fi
 
 # API endpoints are pre-configured for both staging and production
 print_status "API endpoints configured for staging and production environments..."
