@@ -47,27 +47,53 @@ groups:
 
   - name: services
     rules:
-      # Service Down
-      - alert: ServiceDown
-        expr: up{job="blackbox"} == 0
+      # Production Service Down
+      - alert: ProductionServiceDown
+        expr: up{job="blackbox-production"} == 0
         for: 1m
         labels:
           severity: critical
           team: services
+          environment: production
         annotations:
-          summary: "Service {{ $labels.instance }} is down"
-          description: "Service {{ $labels.instance }} has been down for more than 1 minute"
+          summary: "Production service {{ $labels.instance }} is down"
+          description: "Production service {{ $labels.instance }} has been down for more than 1 minute"
 
-      # High Response Time
-      - alert: HighResponseTime
-        expr: probe_duration_seconds > 2
+      # Staging Service Down
+      - alert: StagingServiceDown
+        expr: up{job="blackbox-staging"} == 0
+        for: 1m
+        labels:
+          severity: warning
+          team: services
+          environment: staging
+        annotations:
+          summary: "Staging service {{ $labels.instance }} is down"
+          description: "Staging service {{ $labels.instance }} has been down for more than 1 minute"
+
+      # High Response Time (Production)
+      - alert: ProductionHighResponseTime
+        expr: probe_duration_seconds{job="blackbox-production"} > 2
         for: 5m
         labels:
           severity: warning
           team: services
+          environment: production
         annotations:
-          summary: "High response time for {{ $labels.instance }}"
-          description: "Response time is above 2 seconds for {{ $labels.instance }}"
+          summary: "High response time for production {{ $labels.instance }}"
+          description: "Response time is above 2 seconds for production {{ $labels.instance }}"
+
+      # High Response Time (Staging)
+      - alert: StagingHighResponseTime
+        expr: probe_duration_seconds{job="blackbox-staging"} > 3
+        for: 5m
+        labels:
+          severity: warning
+          team: services
+          environment: staging
+        annotations:
+          summary: "High response time for staging {{ $labels.instance }}"
+          description: "Response time is above 3 seconds for staging {{ $labels.instance }}"
 
       # High Error Rate
       - alert: HighErrorRate

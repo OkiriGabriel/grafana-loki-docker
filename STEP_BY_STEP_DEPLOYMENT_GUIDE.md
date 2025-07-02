@@ -123,10 +123,10 @@ curl -s ipinfo.io/ip
 - Email password: `your-app-password` (use app password for Gmail)
 
 **API Endpoints:**
-- Main API: `https://api.yourcompany.com`
-- Remittance API: `https://remittance.yourcompany.com`
-- Collection API: `https://collection.yourcompany.com`
-- Agency API: `https://agency.yourcompany.com`
+- ✅ **Pre-configured** for both staging and production environments
+- **Production APIs**: api.bpay.africa, remitbridge.banffapi.com, collections-api-gateway-prod.banffapi.com, core.banffapi.com, and more
+- **Staging APIs**: staging.banffapi.com, remitbridge-staging.banffapi.com, staging-collections-api-gateway.banffapi.com, and more
+- **Total**: 30+ API endpoints monitored automatically
 
 ### Step 3.3: Monitor Deployment Progress
 ```bash

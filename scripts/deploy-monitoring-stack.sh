@@ -89,18 +89,8 @@ sed -i "s|YOUR_SLACK_WEBHOOK_URL|$SLACK_WEBHOOK|g" config/alertmanager/alertmana
 sed -i "s/alerts@yourcompany.com/$EMAIL_ADDRESS/g" config/alertmanager/alertmanager.yml
 sed -i "s/your-app-password/$EMAIL_PASSWORD/g" config/alertmanager/alertmanager.yml
 
-# Update API endpoints in Prometheus config
-print_status "Configuring API endpoints..."
-read -p "Enter your main API endpoint: " MAIN_API
-read -p "Enter your Remittance API endpoint: " REMITTANCE_API
-read -p "Enter your Collection API endpoint: " COLLECTION_API
-read -p "Enter your Agency Banking API endpoint: " AGENCY_API
-
-sed -i "s|https://api.example.com/health|$MAIN_API/health|g" config/prometheus/prometheus.yml
-sed -i "s|https://api.example.com/v1/status|$MAIN_API/v1/status|g" config/prometheus/prometheus.yml
-sed -i "s|https://remittance.example.com/health|$REMITTANCE_API/health|g" config/prometheus/prometheus.yml
-sed -i "s|https://collection.example.com/health|$COLLECTION_API/health|g" config/prometheus/prometheus.yml
-sed -i "s|https://agency.example.com/health|$AGENCY_API/health|g" config/prometheus/prometheus.yml
+# API endpoints are pre-configured for both staging and production
+print_status "API endpoints configured for staging and production environments..."
 
 # Create systemd service for auto-start
 print_status "Creating systemd service..."

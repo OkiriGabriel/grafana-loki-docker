@@ -30,18 +30,24 @@ scrape_configs:
     static_configs:
       - targets: ['cadvisor:8080']
 
-  # Blackbox Exporter - API uptime checks
-  - job_name: 'blackbox'
+  # Blackbox Exporter - Production API uptime checks
+  - job_name: 'blackbox-production'
     metrics_path: /probe
     params:
       module: [http_2xx]
     static_configs:
       - targets:
-        - https://api.example.com/health
-        - https://api.example.com/v1/status
-        - https://remittance.example.com/health
-        - https://collection.example.com/health
-        - https://agency.example.com/health
+        # Production APIs
+        - https://api.bpay.africa
+        - https://remitbridge.banffapi.com
+        - https://collections-api-gateway-prod.banffapi.com
+        - https://core.banffapi.com
+        - https://prod.banffapi.com
+        - https://momo.banffapi.com
+        - https://cba.banffapi.com
+        - https://fineract.banffapi.com
+        - https://banffycollect.banffpay.com
+        - https://api-banffycollect.banffpay.com
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target
@@ -49,6 +55,46 @@ scrape_configs:
         target_label: instance
       - target_label: __address__
         replacement: blackbox-exporter:9115
+      - target_label: environment
+        replacement: production
+
+  # Blackbox Exporter - Staging API uptime checks
+  - job_name: 'blackbox-staging'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+        # Staging APIs
+        - https://staging.banffapi.com
+        - https://remitbridge-staging.banffapi.com
+        - https://staging-collections-api-gateway.banffapi.com
+        - https://core-staging.banffapi.com
+        - https://cbi-dev.banffapi.com
+        - https://orangemoney-staging.banffapi.com
+        - https://remitone-dev.banffapi.com
+        - https://notification-dev.banffapi.com
+        - https://partner.banffapi.com
+        - https://cba-staging.banffapi.com
+        - https://compliance.bpay.africa
+        - https://api-exchange.bpay.africa
+        - https://business.bpay.africa
+        - https://exchange.bpay.africa
+        - https://admin.bpay.africa
+        - https://epin.bpay.africa
+        - https://api-epin.bpay.africa
+        - https://dev-collections.bpay.africa
+        - https://partners.bpay.africa
+        - https://api-devcollections.bpay.africa
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+      - target_label: environment
+        replacement: staging
 
   # Loki - Log metrics
   - job_name: 'loki'
