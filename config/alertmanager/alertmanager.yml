@@ -48,11 +48,11 @@
           text: |
             *Status:* {{ .Status | toUpper }}
             *Alert:* {{ .CommonLabels.alertname }}
-            *Container:* {{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if .CommonLabels.container }}{{ .CommonLabels.container }}{{ else }}N/A{{ end }}
-            *Host:* {{ if (index .Alerts 0).Labels.hostname }}{{ (index .Alerts 0).Labels.hostname }}{{ else if (index .Alerts 0).Labels.instance }}{{ (index .Alerts 0).Labels.instance }}{{ else if .CommonLabels.instance }}{{ .CommonLabels.instance }}{{ else }}N/A{{ end }}
+            *Container:* {{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if (index .Alerts 0).Labels.name }}{{ (index .Alerts 0).Labels.name }}{{ else if .CommonLabels.container }}{{ .CommonLabels.container }}{{ else }}N/A{{ end }}
+            *Host:* {{ if (index .Alerts 0).Labels.hostname }}{{ (index .Alerts 0).Labels.hostname }}{{ else if .CommonLabels.hostname }}{{ .CommonLabels.hostname }}{{ else if (index .Alerts 0).Labels.instance }}{{ (index .Alerts 0).Labels.instance }}{{ else if .CommonLabels.instance }}{{ .CommonLabels.instance }}{{ else }}N/A{{ end }}
             *Application:* {{ if (index .Alerts 0).Labels.app }}{{ (index .Alerts 0).Labels.app }}{{ else if .CommonLabels.app }}{{ .CommonLabels.app }}{{ else }}N/A{{ end }}
             *Description:* {{ (index .Alerts 0).Annotations.description }}
-            <http://13.40.8.181:3000/explore?left=[\"now-1h\",\"now\",\"Loki\",{\"expr\":\"{container='{{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else }}{{ .CommonLabels.container }}{{ end }}'}\"}]|View in Grafana/Loki>
+            <http://13.40.8.181:3000/explore?left=%5B%22now-1h%22%2C%22now%22%2C%22Loki%22%2C%7B%22expr%22%3A%22%7Bcontainer%3D'{{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if (index .Alerts 0).Labels.name }}{{ (index .Alerts 0).Labels.name }}{{ else if .CommonLabels.container }}{{ .CommonLabels.container }}{{ end }}'%7D%22%7D%5D|View in Grafana/Loki>
           send_resolved: true
           icon_url: 'https://grafana.com/static/assets/img/logo_new_transparent_400x.png'
           actions:
@@ -67,11 +67,11 @@
           text: |
             *Status:* {{ .Status | toUpper }}
             *Alert:* {{ .CommonLabels.alertname }}
-            *Container:* {{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if .CommonLabels.container }}{{ .CommonLabels.container }}{{ else }}N/A{{ end }}
-            *Host:* {{ if (index .Alerts 0).Labels.hostname }}{{ (index .Alerts 0).Labels.hostname }}{{ else if (index .Alerts 0).Labels.instance }}{{ (index .Alerts 0).Labels.instance }}{{ else if .CommonLabels.instance }}{{ .CommonLabels.instance }}{{ else }}N/A{{ end }}
+            *Container:* {{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if (index .Alerts 0).Labels.name }}{{ (index .Alerts 0).Labels.name }}{{ else if .CommonLabels.container }}{{ .CommonLabels.container }}{{ else }}N/A{{ end }}
+            *Host:* {{ if (index .Alerts 0).Labels.hostname }}{{ (index .Alerts 0).Labels.hostname }}{{ else if .CommonLabels.hostname }}{{ .CommonLabels.hostname }}{{ else if (index .Alerts 0).Labels.instance }}{{ (index .Alerts 0).Labels.instance }}{{ else if .CommonLabels.instance }}{{ .CommonLabels.instance }}{{ else }}N/A{{ end }}
             *Application:* {{ if (index .Alerts 0).Labels.app }}{{ (index .Alerts 0).Labels.app }}{{ else if .CommonLabels.app }}{{ .CommonLabels.app }}{{ else }}N/A{{ end }}
             *Description:* {{ (index .Alerts 0).Annotations.description }}
-            <http://13.40.8.181:3000/explore?left=[\"now-1h\",\"now\",\"Loki\",{\"expr\":\"{container='{{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else }}{{ .CommonLabels.container }}{{ end }}'}\"}]|View in Grafana/Loki>
+            <http://13.40.8.181:3000/explore?left=%5B%22now-1h%22%2C%22now%22%2C%22Loki%22%2C%7B%22expr%22%3A%22%7Bcontainer%3D'{{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if (index .Alerts 0).Labels.name }}{{ (index .Alerts 0).Labels.name }}{{ else if .CommonLabels.container }}{{ .CommonLabels.container }}{{ end }}'%7D%22%7D%5D|View in Grafana/Loki>
           send_resolved: true
           icon_emoji: ':rotating_light:'
           actions:
@@ -88,11 +88,11 @@
           text: |
             *Status:* {{ .Status | toUpper }}
             *Alert:* {{ .CommonLabels.alertname }}
-            *Container:* {{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if .CommonLabels.container }}{{ .CommonLabels.container }}{{ else }}N/A{{ end }}
-            *Host:* {{ if (index .Alerts 0).Labels.hostname }}{{ (index .Alerts 0).Labels.hostname }}{{ else if (index .Alerts 0).Labels.instance }}{{ (index .Alerts 0).Labels.instance }}{{ else if .CommonLabels.instance }}{{ .CommonLabels.instance }}{{ else }}N/A{{ end }}
+            *Container:* {{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if (index .Alerts 0).Labels.name }}{{ (index .Alerts 0).Labels.name }}{{ else if .CommonLabels.container }}{{ .CommonLabels.container }}{{ else }}N/A{{ end }}
+            *Host:* {{ if (index .Alerts 0).Labels.hostname }}{{ (index .Alerts 0).Labels.hostname }}{{ else if .CommonLabels.hostname }}{{ .CommonLabels.hostname }}{{ else if (index .Alerts 0).Labels.instance }}{{ (index .Alerts 0).Labels.instance }}{{ else if .CommonLabels.instance }}{{ .CommonLabels.instance }}{{ else }}N/A{{ end }}
             *Application:* {{ if (index .Alerts 0).Labels.app }}{{ (index .Alerts 0).Labels.app }}{{ else if .CommonLabels.app }}{{ .CommonLabels.app }}{{ else }}N/A{{ end }}
             *Description:* {{ (index .Alerts 0).Annotations.description }}
-            <http://13.40.8.181:3000/explore?left=[\"now-1h\",\"now\",\"Loki\",{\"expr\":\"{container='{{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else }}{{ .CommonLabels.container }}{{ end }}'}\"}]|View in Grafana/Loki>
+            <http://13.40.8.181:3000/explore?left=%5B%22now-1h%22%2C%22now%22%2C%22Loki%22%2C%7B%22expr%22%3A%22%7Bcontainer%3D'{{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if (index .Alerts 0).Labels.name }}{{ (index .Alerts 0).Labels.name }}{{ else if .CommonLabels.container }}{{ .CommonLabels.container }}{{ end }}'%7D%22%7D%5D|View in Grafana/Loki>
           send_resolved: true
 
     - name: 'infrastructure-team'
@@ -102,11 +102,11 @@
           text: |
             *Status:* {{ .Status | toUpper }}
             *Alert:* {{ .CommonLabels.alertname }}
-            *Container:* {{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if .CommonLabels.container }}{{ .CommonLabels.container }}{{ else }}N/A{{ end }}
-            *Host:* {{ if (index .Alerts 0).Labels.hostname }}{{ (index .Alerts 0).Labels.hostname }}{{ else if (index .Alerts 0).Labels.instance }}{{ (index .Alerts 0).Labels.instance }}{{ else if .CommonLabels.instance }}{{ .CommonLabels.instance }}{{ else }}N/A{{ end }}
+            *Container:* {{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if (index .Alerts 0).Labels.name }}{{ (index .Alerts 0).Labels.name }}{{ else if .CommonLabels.container }}{{ .CommonLabels.container }}{{ else }}N/A{{ end }}
+            *Host:* {{ if (index .Alerts 0).Labels.hostname }}{{ (index .Alerts 0).Labels.hostname }}{{ else if .CommonLabels.hostname }}{{ .CommonLabels.hostname }}{{ else if (index .Alerts 0).Labels.instance }}{{ (index .Alerts 0).Labels.instance }}{{ else if .CommonLabels.instance }}{{ .CommonLabels.instance }}{{ else }}N/A{{ end }}
             *Application:* {{ if (index .Alerts 0).Labels.app }}{{ (index .Alerts 0).Labels.app }}{{ else if .CommonLabels.app }}{{ .CommonLabels.app }}{{ else }}N/A{{ end }}
             *Description:* {{ (index .Alerts 0).Annotations.description }}
-            <http://13.40.8.181:3000/explore?left=[\"now-1h\",\"now\",\"Loki\",{\"expr\":\"{container='{{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else }}{{ .CommonLabels.container }}{{ end }}'}\"}]|View in Grafana/Loki>
+            <http://13.40.8.181:3000/explore?left=%5B%22now-1h%22%2C%22now%22%2C%22Loki%22%2C%7B%22expr%22%3A%22%7Bcontainer%3D'{{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if (index .Alerts 0).Labels.name }}{{ (index .Alerts 0).Labels.name }}{{ else if .CommonLabels.container }}{{ .CommonLabels.container }}{{ end }}'%7D%22%7D%5D|View in Grafana/Loki>
           send_resolved: true
 
     - name: 'services-team'
@@ -116,11 +116,11 @@
           text: |
             *Status:* {{ .Status | toUpper }}
             *Alert:* {{ .CommonLabels.alertname }}
-            *Container:* {{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if .CommonLabels.container }}{{ .CommonLabels.container }}{{ else }}N/A{{ end }}
-            *Host:* {{ if (index .Alerts 0).Labels.hostname }}{{ (index .Alerts 0).Labels.hostname }}{{ else if (index .Alerts 0).Labels.instance }}{{ (index .Alerts 0).Labels.instance }}{{ else if .CommonLabels.instance }}{{ .CommonLabels.instance }}{{ else }}N/A{{ end }}
+            *Container:* {{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if (index .Alerts 0).Labels.name }}{{ (index .Alerts 0).Labels.name }}{{ else if .CommonLabels.container }}{{ .CommonLabels.container }}{{ else }}N/A{{ end }}
+            *Host:* {{ if (index .Alerts 0).Labels.hostname }}{{ (index .Alerts 0).Labels.hostname }}{{ else if .CommonLabels.hostname }}{{ .CommonLabels.hostname }}{{ else if (index .Alerts 0).Labels.instance }}{{ (index .Alerts 0).Labels.instance }}{{ else if .CommonLabels.instance }}{{ .CommonLabels.instance }}{{ else }}N/A{{ end }}
             *Application:* {{ if (index .Alerts 0).Labels.app }}{{ (index .Alerts 0).Labels.app }}{{ else if .CommonLabels.app }}{{ .CommonLabels.app }}{{ else }}N/A{{ end }}
             *Description:* {{ (index .Alerts 0).Annotations.description }}
-            <http://13.40.8.181:3000/explore?left=[\"now-1h\",\"now\",\"Loki\",{\"expr\":\"{container='{{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else }}{{ .CommonLabels.container }}{{ end }}'}\"}]|View in Grafana/Loki>
+            <http://13.40.8.181:3000/explore?left=%5B%22now-1h%22%2C%22now%22%2C%22Loki%22%2C%7B%22expr%22%3A%22%7Bcontainer%3D'{{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if (index .Alerts 0).Labels.name }}{{ (index .Alerts 0).Labels.name }}{{ else if .CommonLabels.container }}{{ .CommonLabels.container }}{{ end }}'%7D%22%7D%5D|View in Grafana/Loki>
           send_resolved: true
 
   inhibit_rules:

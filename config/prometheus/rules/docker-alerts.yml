@@ -9,12 +9,12 @@ groups:
           severity: critical
           team: infrastructure
           type: container
-          container: "{{ $labels.name }}"
-          hostname: "{{ $labels.instance }}"
+          container: "{{ if $labels.container }}{{ $labels.container }}{{ else }}{{ $labels.name }}{{ end }}"
+          hostname: "{{ $labels.hostname }}"
           app: "{{ $labels.job }}"
         annotations:
-          summary: "Container {{ $labels.name }} is down"
-          description: "Container {{ $labels.name }} has been down for more than 1 minute on host {{ $labels.instance }}"
+          summary: "Container {{ if $labels.container }}{{ $labels.container }}{{ else }}{{ $labels.name }}{{ end }} is down"
+          description: "Container {{ if $labels.container }}{{ $labels.container }}{{ else }}{{ $labels.name }}{{ end }} has been down for more than 1 minute on host {{ $labels.hostname }}"
 
       # Service Down (for non-container services)
       - alert: ServiceDown
