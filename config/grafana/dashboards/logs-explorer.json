@@ -1,9 +1,8 @@
 {
-  "dashboard": {
     "id": null,
     "title": "Logs Explorer",
     "tags": ["logs", "explorer", "monitoring"],
-    "style": "dark",
+    "style": "dark",  
     "timezone": "browser",
     "panels": [
       {
@@ -222,5 +221,4 @@
         }
       ]
     }
-  }
 } 

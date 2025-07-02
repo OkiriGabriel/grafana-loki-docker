@@ -1,5 +1,4 @@
 {
-  "dashboard": {
     "id": null,
     "title": "Business Metrics - Financial Products",
     "tags": ["business", "financial", "products"],
@@ -272,4 +271,3 @@
     },
     "refresh": "30s"
   }
-} 

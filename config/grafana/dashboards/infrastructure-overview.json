@@ -1,10 +1,9 @@
 {
-  "dashboard": {
     "id": null,
     "title": "Infrastructure Overview",
     "tags": ["infrastructure", "monitoring"],
     "style": "dark",
-    "timezone": "browser",
+    "timezone": "browser",  
     "panels": [
       {
         "id": 1,
@@ -204,5 +203,4 @@
       "to": "now"
     },
     "refresh": "30s"
-  }
 } 

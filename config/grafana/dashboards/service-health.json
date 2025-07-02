@@ -1,5 +1,4 @@
 {
-  "dashboard": {
     "id": null,
     "title": "Service Health & API Monitoring",
     "tags": ["services", "api", "monitoring"],
@@ -34,7 +33,7 @@
         "title": "Response Time by Service",
         "type": "graph",
         "targets": [
-          {
+          { 
             "expr": "probe_duration_seconds",
             "legendFormat": "{{instance}}"
           }
@@ -147,7 +146,6 @@
     "time": {
       "from": "now-1h",
       "to": "now"
-    },
-    "refresh": "30s"
-  }
+  },
+  "refresh": "30s"
 } 

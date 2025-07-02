@@ -96,6 +96,29 @@ scrape_configs:
         replacement: '${SERVER_NAME}'
       - target_label: 'environment'
         replacement: '${ENVIRONMENT}'
+    pipeline_stages:
+      - json:
+          expressions:
+            timestamp: timestamp
+            level: level
+            message: message
+            service: service
+            trace_id: trace_id
+            user_id: user_id
+
+      - labels:
+          timestamp:
+          level:
+          service:
+          trace_id:
+          user_id:
+
+      - timestamp:
+          source: timestamp
+          format: RFC3339Nano
+
+      - output:
+          source: message
 
   # System logs
   - job_name: system
@@ -107,6 +130,29 @@ scrape_configs:
           instance: ${SERVER_NAME}
           environment: ${ENVIRONMENT}
           __path__: /var/log/*log
+    pipeline_stages:
+      - json:
+          expressions:
+            timestamp: timestamp
+            level: level
+            message: message
+            service: service
+            trace_id: trace_id
+            user_id: user_id
+
+      - labels:
+          timestamp:
+          level:
+          service:
+          trace_id:
+          user_id:
+
+      - timestamp:
+          source: timestamp
+          format: RFC3339Nano
+
+      - output:
+          source: message
 
   # Application logs
   - job_name: applications
@@ -118,6 +164,29 @@ scrape_configs:
           instance: ${SERVER_NAME}
           environment: ${ENVIRONMENT}
           __path__: /var/log/applications/*.log
+    pipeline_stages:
+      - json:
+          expressions:
+            timestamp: timestamp
+            level: level
+            message: message
+            service: service
+            trace_id: trace_id
+            user_id: user_id
+
+      - labels:
+          timestamp:
+          level:
+          service:
+          trace_id:
+          user_id:
+
+      - timestamp:
+          source: timestamp
+          format: RFC3339Nano
+
+      - output:
+          source: message
 
   # Custom log paths for your applications
   - job_name: remittance-logs
@@ -130,6 +199,29 @@ scrape_configs:
           instance: ${SERVER_NAME}
           environment: ${ENVIRONMENT}
           __path__: /var/log/remittance/*.log
+    pipeline_stages:
+      - json:
+          expressions:
+            timestamp: timestamp
+            level: level
+            message: message
+            service: service
+            trace_id: trace_id
+            user_id: user_id
+
+      - labels:
+          timestamp:
+          level:
+          service:
+          trace_id:
+          user_id:
+
+      - timestamp:
+          source: timestamp
+          format: RFC3339Nano
+
+      - output:
+          source: message
 
   - job_name: collection-logs
     static_configs:
@@ -141,6 +233,29 @@ scrape_configs:
           instance: ${SERVER_NAME}
           environment: ${ENVIRONMENT}
           __path__: /var/log/collection/*.log
+    pipeline_stages:
+      - json:
+          expressions:
+            timestamp: timestamp
+            level: level
+            message: message
+            service: service
+            trace_id: trace_id
+            user_id: user_id
+
+      - labels:
+          timestamp:
+          level:
+          service:
+          trace_id:
+          user_id:
+
+      - timestamp:
+          source: timestamp
+          format: RFC3339Nano
+
+      - output:
+          source: message
 
   - job_name: agency-logs
     static_configs:
@@ -152,6 +267,29 @@ scrape_configs:
           instance: ${SERVER_NAME}
           environment: ${ENVIRONMENT}
           __path__: /var/log/agency/*.log
+    pipeline_stages:
+      - json:
+          expressions:
+            timestamp: timestamp
+            level: level
+            message: message
+            service: service
+            trace_id: trace_id
+            user_id: user_id
+
+      - labels:
+          timestamp:
+          level:
+          service:
+          trace_id:
+          user_id:
+
+      - timestamp:
+          source: timestamp
+          format: RFC3339Nano
+
+      - output:
+          source: message
 
   # Nginx logs
   - job_name: nginx
@@ -163,6 +301,29 @@ scrape_configs:
           instance: ${SERVER_NAME}
           environment: ${ENVIRONMENT}
           __path__: /var/log/nginx/*.log
+    pipeline_stages:
+      - json:
+          expressions:
+            timestamp: timestamp
+            level: level
+            message: message
+            service: service
+            trace_id: trace_id
+            user_id: user_id
+
+      - labels:
+          timestamp:
+          level:
+          service:
+          trace_id:
+          user_id:
+
+      - timestamp:
+          source: timestamp
+          format: RFC3339Nano
+
+      - output:
+          source: message
 
   # Apache logs
   - job_name: apache
@@ -174,31 +335,29 @@ scrape_configs:
           instance: ${SERVER_NAME}
           environment: ${ENVIRONMENT}
           __path__: /var/log/apache2/*.log
+    pipeline_stages:
+      - json:
+          expressions:
+            timestamp: timestamp
+            level: level
+            message: message
+            service: service
+            trace_id: trace_id
+            user_id: user_id
 
-# Pipeline stages for log processing
-pipeline_stages:
-  - json:
-      expressions:
-        timestamp: timestamp
-        level: level
-        message: message
-        service: service
-        trace_id: trace_id
-        user_id: user_id
+      - labels:
+          timestamp:
+          level:
+          service:
+          trace_id:
+          user_id:
 
-  - labels:
-      timestamp:
-      level:
-      service:
-      trace_id:
-      user_id:
+      - timestamp:
+          source: timestamp
+          format: RFC3339Nano
 
-  - timestamp:
-      source: timestamp
-      format: RFC3339Nano
-
-  - output:
-      source: message
+      - output:
+          source: message
 EOF
 
 # Create log directories

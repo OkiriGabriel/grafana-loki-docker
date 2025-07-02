@@ -1,5 +1,4 @@
 {
-  "dashboard": {
     "id": null,
     "title": "Docker Container Health & Failures",
     "tags": ["docker", "containers", "health", "failures"],
@@ -346,5 +345,4 @@
         }
       ]
     }
-  }
 } 

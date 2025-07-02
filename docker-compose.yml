@@ -120,6 +120,8 @@ services:
     networks:
       - monitoring
 
+
+
 volumes:
   grafana-storage:
   loki-storage:

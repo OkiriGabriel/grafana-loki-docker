@@ -1,10 +1,10 @@
 global:
   resolve_timeout: 5m
-  slack_api_url: 'https://hooks.slack.com/services/YOUR_SLACK_WEBHOOK_URL'
+  slack_api_url: 'https://hooks.slack.com/services/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'
   smtp_smarthost: 'smtp.gmail.com:587'
-  smtp_from: 'alerts@yourcompany.com'
-  smtp_auth_username: 'alerts@yourcompany.com'
-  smtp_auth_password: 'your-app-password'
+  smtp_from: 'thegabrielookiri@gmail.com'
+  smtp_auth_username: 'thegabrielookiri@gmail.com'
+  smtp_auth_password: 'Nopassword@2024'
 
 route:
   group_by: ['alertname', 'cluster', 'service']
