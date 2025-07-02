@@ -7,6 +7,7 @@ global:
 rule_files:
   - "rules/*.yml"
   - "rules/docker-alerts.yml"
+  - "rules/log-alerts.yml"
 
 alerting:
   alertmanagers:
@@ -25,15 +26,11 @@ scrape_configs:
     static_configs:
       - targets: ['node-exporter:9100']
     relabel_configs:
-      # Get EC2 instance ID for proper hostname
+      # Set proper hostname for node metrics
       - source_labels: [__address__]
-        target_label: __tmp_instance
-        regex: 'node-exporter:9100'
-        replacement: '${1}'
-      - source_labels: [__tmp_instance]
         target_label: instance
-        regex: '.*'
-        replacement: '${EC2_INSTANCE_ID}'
+        regex: 'node-exporter:9100'
+        replacement: 'bpay-logging-and-monitoring'
         action: replace
 
   # Cadvisor - Container metrics
@@ -41,15 +38,11 @@ scrape_configs:
     static_configs:
       - targets: ['cadvisor:8080']
     relabel_configs:
-      # Get EC2 instance ID for proper hostname
+      # Set proper hostname for container metrics
       - source_labels: [__address__]
-        target_label: __tmp_instance
-        regex: 'cadvisor:8080'
-        replacement: '${1}'
-      - source_labels: [__tmp_instance]
         target_label: instance
-        regex: '.*'
-        replacement: '${EC2_INSTANCE_ID}'
+        regex: 'cadvisor:8080'
+        replacement: 'bpay-logging-and-monitoring'
         action: replace
 
   # Blackbox Exporter - Production API uptime checks
@@ -159,4 +152,11 @@ scrape_configs:
         - 'app-server-2:8080'
         - 'app-server-3:8080'
     metrics_path: /metrics
-    scrape_interval: 30s 
+    scrape_interval: 30s
+    relabel_configs:
+      # Set proper hostname for application services
+      - source_labels: [__address__]
+        target_label: instance
+        regex: '(.+):.+'
+        replacement: '${1}'
+        action: replace 

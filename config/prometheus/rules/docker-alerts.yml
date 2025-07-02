@@ -16,6 +16,21 @@ groups:
           summary: "Container {{ $labels.name }} is down"
           description: "Container {{ $labels.name }} has been down for more than 1 minute on host {{ $labels.instance }}"
 
+      # Service Down (for non-container services)
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: infrastructure
+          type: service
+          container: "{{ $labels.job }}"
+          hostname: "{{ $labels.instance }}"
+          app: "{{ $labels.job }}"
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "Service {{ $labels.job }} on {{ $labels.instance }} has been down for more than 1 minute"
+
       # Container Restarting Frequently
       - alert: ContainerRestarting
         expr: increase(container_start_time_seconds[15m]) > 5
@@ -196,6 +211,8 @@ groups:
         annotations:
           summary: "Possible memory leak in {{ $labels.name }}"
           description: "Container {{ $labels.name }} memory usage increased by {{ $value }} bytes in the last hour on host {{ $labels.instance }}"
+
+
 
   - name: docker-infrastructure
     rules:

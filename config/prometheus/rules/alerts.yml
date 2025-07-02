@@ -34,7 +34,7 @@ groups:
           summary: "High disk usage on {{ $labels.instance }}"
           description: "Disk usage is above 85% for more than 5 minutes on {{ $labels.instance }}"
 
-      # Node Down
+      # Node Down (for infrastructure services)
       - alert: NodeDown
         expr: up == 0
         for: 1m
@@ -42,9 +42,11 @@ groups:
           severity: critical
           team: infrastructure
           hostname: "{{ $labels.instance }}"
+          container: "{{ $labels.job }}"
+          app: "{{ $labels.job }}"
         annotations:
-          summary: "Node {{ $labels.instance }} is down"
-          description: "Node {{ $labels.instance }} has been down for more than 1 minute"
+          summary: "Infrastructure service {{ $labels.job }} on {{ $labels.instance }} is down"
+          description: "Infrastructure service {{ $labels.job }} on {{ $labels.instance }} has been down for more than 1 minute"
 
   - name: services
     rules:

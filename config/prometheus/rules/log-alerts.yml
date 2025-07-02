@@ -1,0 +1,92 @@
+groups:
+  - name: log-monitoring
+    rules:
+      # Container Log Errors - Critical HTTP Errors
+      - alert: ContainerLogCriticalHTTPErrors
+        expr: increase(container_log_entries_total{container=~".*", level=~".*error.*|.*ERROR.*|.*errored.*|.*ERRORED.*", message=~".*403.*|.*404.*|.*503.*|.*501.*|.*401.*|.*500.*"}[5m]) > 5
+        for: 2m
+        labels:
+          severity: critical
+          team: infrastructure
+          type: log_error
+          container: "{{ $labels.container }}"
+          hostname: "{{ $labels.instance }}"
+          app: "{{ $labels.job }}"
+        annotations:
+          summary: "Critical HTTP errors detected in {{ $labels.container }} logs"
+          description: "Container {{ $labels.container }} is logging critical HTTP errors (403, 404, 503, 501, 401, 500) on host {{ $labels.instance }}"
+
+      # Container Log Errors - General Errors
+      - alert: ContainerLogGeneralErrors
+        expr: increase(container_log_entries_total{container=~".*", level=~".*error.*|.*ERROR.*|.*errored.*|.*ERRORED.*|.*failed.*|.*exception.*|.*timeout.*|.*connection refused.*"}[5m]) > 10
+        for: 3m
+        labels:
+          severity: warning
+          team: infrastructure
+          type: log_error
+          container: "{{ $labels.container }}"
+          hostname: "{{ $labels.instance }}"
+          app: "{{ $labels.job }}"
+        annotations:
+          summary: "General errors detected in {{ $labels.container }} logs"
+          description: "Container {{ $labels.container }} is logging general errors (error, errored, failed, exception, timeout, connection refused) on host {{ $labels.instance }}"
+
+      # Container Log Errors - High Error Rate
+      - alert: ContainerLogHighErrorRate
+        expr: increase(container_log_entries_total{container=~".*", level=~".*error.*|.*ERROR.*|.*errored.*|.*ERRORED.*"}[1m]) > 20
+        for: 1m
+        labels:
+          severity: critical
+          team: infrastructure
+          type: log_error
+          container: "{{ $labels.container }}"
+          hostname: "{{ $labels.instance }}"
+          app: "{{ $labels.job }}"
+        annotations:
+          summary: "High error rate detected in {{ $labels.container }} logs"
+          description: "Container {{ $labels.container }} is logging errors at a high rate (error, errored) on host {{ $labels.instance }}"
+
+      # Container Log Errors - Authentication Errors
+      - alert: ContainerLogAuthErrors
+        expr: increase(container_log_entries_total{container=~".*", message=~".*401.*|.*403.*|.*unauthorized.*|.*forbidden.*|.*authentication.*failed.*"}[5m]) > 3
+        for: 2m
+        labels:
+          severity: critical
+          team: infrastructure
+          type: auth_error
+          container: "{{ $labels.container }}"
+          hostname: "{{ $labels.instance }}"
+          app: "{{ $labels.job }}"
+        annotations:
+          summary: "Authentication errors detected in {{ $labels.container }} logs"
+          description: "Container {{ $labels.container }} is logging authentication errors (401, 403, unauthorized, forbidden) on host {{ $labels.instance }}"
+
+      # Container Log Errors - Server Errors
+      - alert: ContainerLogServerErrors
+        expr: increase(container_log_entries_total{container=~".*", message=~".*500.*|.*502.*|.*503.*|.*504.*|.*505.*|.*internal.*server.*error.*"}[5m]) > 3
+        for: 2m
+        labels:
+          severity: critical
+          team: infrastructure
+          type: server_error
+          container: "{{ $labels.container }}"
+          hostname: "{{ $labels.instance }}"
+          app: "{{ $labels.job }}"
+        annotations:
+          summary: "Server errors detected in {{ $labels.container }} logs"
+          description: "Container {{ $labels.container }} is logging server errors (500, 502, 503, 504, 505, internal server error) on host {{ $labels.instance }}"
+
+      # Container Log Errors - Client Errors
+      - alert: ContainerLogClientErrors
+        expr: increase(container_log_entries_total{container=~".*", message=~".*400.*|.*404.*|.*405.*|.*406.*|.*408.*|.*409.*|.*410.*|.*411.*|.*412.*|.*413.*|.*414.*|.*415.*|.*416.*|.*417.*|.*418.*|.*422.*|.*423.*|.*424.*|.*425.*|.*426.*|.*428.*|.*429.*|.*431.*|.*451.*"}[5m]) > 10
+        for: 3m
+        labels:
+          severity: warning
+          team: infrastructure
+          type: client_error
+          container: "{{ $labels.container }}"
+          hostname: "{{ $labels.instance }}"
+          app: "{{ $labels.job }}"
+        annotations:
+          summary: "Client errors detected in {{ $labels.container }} logs"
+          description: "Container {{ $labels.container }} is logging client errors (4xx status codes) on host {{ $labels.instance }}" 
