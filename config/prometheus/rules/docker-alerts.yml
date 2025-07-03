@@ -9,13 +9,13 @@ groups:
           severity: critical
           team: infrastructure
           container: "{{ $labels.name }}"
-          host: "{{ $labels.instance | regexReplace \":8080$\" \"\" }}"
+          host: "{{ $labels.instance }}"
           application: "{{ $labels.name }}"
           description: "Container has not been seen for over 1m — it may have exited or crashed"
           url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
         annotations:
           summary: "🚨 CRITICAL: ContainerDown"
-          description: "Container {{ $labels.name }} has not been seen for over 1m — it may have exited or crashed on host {{ $labels.instance | regexReplace \":8080$\" \"\" }}"
+          description: "Container {{ $labels.name }} has not been seen for over 1m — it may have exited or crashed on host {{ $labels.instance }}"
           logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
 
       # Container Exited/Stopped
@@ -26,13 +26,13 @@ groups:
           severity: critical
           team: infrastructure
           container: "{{ $labels.name }}"
-          host: "{{ $labels.instance | regexReplace \":8080$\" \"\" }}"
+          host: "{{ $labels.instance }}"
           application: "{{ $labels.name }}"
           description: "Container has exited or stopped"
           url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
         annotations:
           summary: "🚨 CRITICAL: ContainerExited"
-          description: "Container {{ $labels.name }} has exited/stopped on host {{ $labels.instance | regexReplace \":8080$\" \"\" }}"
+          description: "Container {{ $labels.name }} has exited/stopped on host {{ $labels.instance }}"
           logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
 
       # Container Not Running (but not exited - likely restarting)
@@ -43,13 +43,13 @@ groups:
           severity: warning
           team: infrastructure
           container: "{{ $labels.name }}"
-          host: "{{ $labels.instance | regexReplace \":8080$\" \"\" }}"
+          host: "{{ $labels.instance }}"
           application: "{{ $labels.name }}"
           description: "Container is not running and not exited - likely restarting"
           url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
         annotations:
           summary: "⚠️ WARNING: ContainerNotRunning"
-          description: "Container {{ $labels.name }} is neither running nor exited (likely restarting) on host {{ $labels.instance | regexReplace \":8080$\" \"\" }}"
+          description: "Container {{ $labels.name }} is neither running nor exited (likely restarting) on host {{ $labels.instance }}"
           logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
 
       # Container Exit Code Non-Zero
@@ -60,13 +60,13 @@ groups:
           severity: critical
           team: infrastructure
           container: "{{ $labels.name }}"
-          host: "{{ $labels.instance | regexReplace \":8080$\" \"\" }}"
+          host: "{{ $labels.instance }}"
           application: "{{ $labels.name }}"
           description: "Container exited with non-zero exit code"
           url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
         annotations:
           summary: "🚨 CRITICAL: ContainerExitedWithError"
-          description: "Container {{ $labels.name }} exited with non-zero exit code {{ $value }} on host {{ $labels.instance | regexReplace \":8080$\" \"\" }}"
+          description: "Container {{ $labels.name }} exited with non-zero exit code {{ $value }} on host {{ $labels.instance }}"
           logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
 
       # Container Started (Optional - for monitoring container lifecycle)
@@ -77,13 +77,13 @@ groups:
           severity: info
           team: infrastructure
           container: "{{ $labels.name }}"
-          host: "{{ $labels.instance | regexReplace \":8080$\" \"\" }}"
+          host: "{{ $labels.instance }}"
           application: "{{ $labels.name }}"
           description: "Container has been started"
           url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
         annotations:
           summary: "ℹ️ INFO: ContainerStarted"
-          description: "Container {{ $labels.name }} has been started on host {{ $labels.instance | regexReplace \":8080$\" \"\" }}"
+          description: "Container {{ $labels.name }} has been started on host {{ $labels.instance }}"
           logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
 
       # Container Created (Optional - for monitoring new container creation)
@@ -94,13 +94,13 @@ groups:
           severity: info
           team: infrastructure
           container: "{{ $labels.name }}"
-          host: "{{ $labels.instance | regexReplace \":8080$\" \"\" }}"
+          host: "{{ $labels.instance }}"
           application: "{{ $labels.name }}"
           description: "New container has been created"
           url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
         annotations:
           summary: "ℹ️ INFO: ContainerCreated"
-          description: "New container {{ $labels.name }} has been created on host {{ $labels.instance | regexReplace \":8080$\" \"\" }}"
+          description: "New container {{ $labels.name }} has been created on host {{ $labels.instance }}"
           logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
 
       # Container Restarting Frequently
@@ -111,13 +111,13 @@ groups:
           severity: warning
           team: infrastructure
           container: "{{ $labels.name }}"
-          host: "{{ $labels.instance | regexReplace \":8080$\" \"\" }}"
+          host: "{{ $labels.instance }}"
           application: "{{ $labels.name }}"
           description: "Container is restarting frequently"
           url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
         annotations:
           summary: "⚠️ WARNING: ContainerRestarting"
-          description: "Container {{ $labels.name }} has restarted more than 5 times in the last 15 minutes on host {{ $labels.instance | regexReplace \":8080$\" \"\" }}"
+          description: "Container {{ $labels.name }} has restarted more than 5 times in the last 15 minutes on host {{ $labels.instance }}"
           logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
 
   - name: docker-container-resources
@@ -130,13 +130,13 @@ groups:
           severity: warning
           team: infrastructure
           container: "{{ $labels.name }}"
-          host: "{{ $labels.instance | regexReplace \":8080$\" \"\" }}"
+          host: "{{ $labels.instance }}"
           application: "{{ $labels.name }}"
           description: "Container is using more than 85% of memory limit"
           url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
         annotations:
           summary: "⚠️ WARNING: ContainerHighMemoryUsage"
-          description: "Container {{ $labels.name }} is using more than 85% of memory limit on host {{ $labels.instance | regexReplace \":8080$\" \"\" }}"
+          description: "Container {{ $labels.name }} is using more than 85% of memory limit on host {{ $labels.instance }}"
           logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
 
       # Container High CPU Usage
@@ -147,13 +147,13 @@ groups:
           severity: warning
           team: infrastructure
           container: "{{ $labels.name }}"
-          host: "{{ $labels.instance | regexReplace \":8080$\" \"\" }}"
+          host: "{{ $labels.instance }}"
           application: "{{ $labels.name }}"
           description: "Container is using more than 80% CPU"
           url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
         annotations:
           summary: "⚠️ WARNING: ContainerHighCPUUsage"
-          description: "Container {{ $labels.name }} is using more than 80% CPU on host {{ $labels.instance | regexReplace \":8080$\" \"\" }}"
+          description: "Container {{ $labels.name }} is using more than 80% CPU on host {{ $labels.instance }}"
           logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
 
       # Container High Disk I/O
@@ -164,13 +164,13 @@ groups:
           severity: warning
           team: infrastructure
           container: "{{ $labels.name }}"
-          host: "{{ $labels.instance | regexReplace \":8080$\" \"\" }}"
+          host: "{{ $labels.instance }}"
           application: "{{ $labels.name }}"
           description: "Container has high disk I/O activity"
           url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
         annotations:
           summary: "⚠️ WARNING: ContainerHighDiskIO"
-          description: "Container {{ $labels.name }} has high disk I/O activity on host {{ $labels.instance | regexReplace \":8080$\" \"\" }}"
+          description: "Container {{ $labels.name }} has high disk I/O activity on host {{ $labels.instance }}"
           logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
 
   - name: docker-service-health
