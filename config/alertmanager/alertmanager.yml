@@ -1,137 +1,67 @@
-  global:
-    resolve_timeout: 5m
-    slack_api_url: 'xxxxxx'
-  route:
-    group_by: ['alertname', 'cluster', 'service']
-    group_wait: 10s
-    group_interval: 10s
-    repeat_interval: 1h
-    receiver: 'slack-notifications'
-    routes:
-      # Critical alerts go to Slack immediately
-      - match:
-          severity: critical
-        receiver: 'slack-critical'
-        continue: true
-        group_wait: 0s
-        repeat_interval: 5m
-      
-      # Warning alerts go to email
-      - match:
-          severity: warning
-        receiver: 'email-notifications'
-        continue: true
-      
-      # Business team alerts
-      - match:
-          team: business
-        receiver: 'business-team'
-        continue: true
-      
-      # Infrastructure team alerts
-      - match:
-          team: infrastructure
-        receiver: 'infrastructure-team'
-        continue: true
-      
-      # Services team alerts
-      - match:
-          team: services
-        receiver: 'services-team'
-        continue: true
+global:
+  resolve_timeout: 5m
+  slack_api_url: 'xxxxxx'
 
-  receivers:
-    - name: 'slack-notifications'
-      slack_configs:
-        - channel: '#logs'
-          title: '🔥 {{ .CommonLabels.alertname }}'
-          text: |
-            :rotating_light: {{ .CommonLabels.severity | toUpper }}: {{ .CommonLabels.alertname }}
-            Status: {{ .Status | toUpper }}
-            Alert: {{ .CommonLabels.alertname }}
-            Container: {{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if (index .Alerts 0).Labels.name }}{{ (index .Alerts 0).Labels.name }}{{ else }}N/A{{ end }}
-            Host: {{ if (index .Alerts 0).Labels.host }}{{ (index .Alerts 0).Labels.host }}{{ else if (index .Alerts 0).Labels.hostname }}{{ (index .Alerts 0).Labels.hostname }}{{ else if (index .Alerts 0).Labels.instance }}{{ (index .Alerts 0).Labels.instance }}{{ else }}N/A{{ end }}
-            Application: {{ if (index .Alerts 0).Labels.application }}{{ (index .Alerts 0).Labels.application }}{{ else if (index .Alerts 0).Labels.app }}{{ (index .Alerts 0).Labels.app }}{{ else if (index .Alerts 0).Labels.job }}{{ (index .Alerts 0).Labels.job }}{{ else }}N/A{{ end }}
-            Description: {{ if (index .Alerts 0).Labels.description }}{{ (index .Alerts 0).Labels.description }}{{ else }}{{ (index .Alerts 0).Annotations.description }}{{ end }}
-            Logs: [View logs]({{ if (index .Alerts 0).Labels.url }}{{ (index .Alerts 0).Labels.url }}{{ else if (index .Alerts 0).Annotations.logs }}{{ (index .Alerts 0).Annotations.logs }}{{ else }}https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if (index .Alerts 0).Labels.name }}{{ (index .Alerts 0).Labels.name }}{{ else }}N/A{{ end }}\\\"}\"}]{{ end }})
-          send_resolved: true
-          icon_emoji: ':rotating_light:'
-          actions:
-            - type: button
-              text: 'View in Grafana/Loki'
-              url: "{{ if (index .Alerts 0).Labels.url }}{{ (index .Alerts 0).Labels.url }}{{ else if (index .Alerts 0).Annotations.logs }}{{ (index .Alerts 0).Annotations.logs }}{{ else }}https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if (index .Alerts 0).Labels.name }}{{ (index .Alerts 0).Labels.name }}{{ else }}N/A{{ end }}\\\"}\"}]{{ end }}"
+route:
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'slack-notifications'
+  routes:
+    # Critical alerts go to Slack immediately
+    - match:
+        severity: critical
+      receiver: 'slack-critical'
+      continue: true
+      group_wait: 0s
+      repeat_interval: 5m
 
-    - name: 'slack-critical'
-      slack_configs:
-        - channel: '#logs'
-          title: '🔥 {{ .CommonLabels.alertname }}'
-          text: |
-            :rotating_light: {{ .CommonLabels.severity | toUpper }}: {{ .CommonLabels.alertname }}
-            Status: {{ .Status | toUpper }}
-            Alert: {{ .CommonLabels.alertname }}
-            Container: {{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if (index .Alerts 0).Labels.name }}{{ (index .Alerts 0).Labels.name }}{{ else }}N/A{{ end }}
-            Host: {{ if (index .Alerts 0).Labels.host }}{{ (index .Alerts 0).Labels.host }}{{ else if (index .Alerts 0).Labels.hostname }}{{ (index .Alerts 0).Labels.hostname }}{{ else if (index .Alerts 0).Labels.instance }}{{ (index .Alerts 0).Labels.instance }}{{ else }}N/A{{ end }}
-            Application: {{ if (index .Alerts 0).Labels.application }}{{ (index .Alerts 0).Labels.application }}{{ else if (index .Alerts 0).Labels.app }}{{ (index .Alerts 0).Labels.app }}{{ else if (index .Alerts 0).Labels.job }}{{ (index .Alerts 0).Labels.job }}{{ else }}N/A{{ end }}
-            Description: {{ if (index .Alerts 0).Labels.description }}{{ (index .Alerts 0).Labels.description }}{{ else }}{{ (index .Alerts 0).Annotations.description }}{{ end }}
-            Logs: [View logs]({{ if (index .Alerts 0).Labels.url }}{{ (index .Alerts 0).Labels.url }}{{ else if (index .Alerts 0).Annotations.logs }}{{ (index .Alerts 0).Annotations.logs }}{{ else }}https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if (index .Alerts 0).Labels.name }}{{ (index .Alerts 0).Labels.name }}{{ else }}N/A{{ end }}\\\"}\"}]{{ end }})
-          send_resolved: true
-          icon_emoji: ':rotating_light:'
-          actions:
-            - type: button
-              text: 'View in Grafana/Loki'
-              url: "{{ if (index .Alerts 0).Labels.url }}{{ (index .Alerts 0).Labels.url }}{{ else if (index .Alerts 0).Annotations.logs }}{{ (index .Alerts 0).Annotations.logs }}{{ else }}https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if (index .Alerts 0).Labels.name }}{{ (index .Alerts 0).Labels.name }}{{ else }}N/A{{ end }}\\\"}\"}]{{ end }}"
+receivers:
+  - name: 'slack-notifications'
+    slack_configs:
+      - channel: '#logs'
+        title: '🔥 {{ .CommonLabels.alertname }}'
+        text: |
+          :rotating_light: {{ .CommonLabels.severity | toUpper }}: {{ .CommonLabels.alertname }}
+          Status: {{ .Status | toUpper }}
+          Alert: {{ .CommonLabels.alertname }}
+          Container: {{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if (index .Alerts 0).Labels.name }}{{ (index .Alerts 0).Labels.name }}{{ else }}N/A{{ end }}
+          Host: {{ if (index .Alerts 0).Labels.host }}{{ (index .Alerts 0).Labels.host }}{{ else if (index .Alerts 0).Labels.hostname }}{{ (index .Alerts 0).Labels.hostname }}{{ else if (index .Alerts 0).Labels.instance }}{{ (index .Alerts 0).Labels.instance }}{{ else }}N/A{{ end }}
+          Application: {{ if (index .Alerts 0).Labels.application }}{{ (index .Alerts 0).Labels.application }}{{ else if (index .Alerts 0).Labels.app }}{{ (index .Alerts 0).Labels.app }}{{ else if (index .Alerts 0).Labels.job }}{{ (index .Alerts 0).Labels.job }}{{ else }}N/A{{ end }}
+          Description: {{ if (index .Alerts 0).Labels.description }}{{ (index .Alerts 0).Labels.description }}{{ else }}{{ (index .Alerts 0).Annotations.description }}{{ end }}
+          Logs: [View logs]({{ if (index .Alerts 0).Labels.url }}{{ (index .Alerts 0).Labels.url }}{{ else if (index .Alerts 0).Annotations.logs }}{{ (index .Alerts 0).Annotations.logs }}{{ else }}http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if (index .Alerts 0).Labels.name }}{{ (index .Alerts 0).Labels.name }}{{ else }}N/A{{ end }}\\\"}\"}]{{ end }})
+        send_resolved: true
+        icon_emoji: ':rotating_light:'
+        actions:
+          - type: button
+            text: 'View in Grafana/Loki'
+            url: "{{ if (index .Alerts 0).Labels.url }}{{ (index .Alerts 0).Labels.url }}{{ else if (index .Alerts 0).Annotations.logs }}{{ (index .Alerts 0).Annotations.logs }}{{ else }}http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if (index .Alerts 0).Labels.name }}{{ (index .Alerts 0).Labels.name }}{{ else }}N/A{{ end }}\\\"}\"}]{{ end }}"
 
-    - name: 'email-notifications'
+  - name: 'slack-critical'
+    slack_configs:
+      - channel: '#logs'
+        title: '🔥 {{ .CommonLabels.alertname }}'
+        text: |
+          :rotating_light: {{ .CommonLabels.severity | toUpper }}: {{ .CommonLabels.alertname }}
+          Status: {{ .Status | toUpper }}
+          Alert: {{ .CommonLabels.alertname }}
+          Container: {{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if (index .Alerts 0).Labels.name }}{{ (index .Alerts 0).Labels.name }}{{ else }}N/A{{ end }}
+          Host: {{ if (index .Alerts 0).Labels.host }}{{ (index .Alerts 0).Labels.host }}{{ else if (index .Alerts 0).Labels.hostname }}{{ (index .Alerts 0).Labels.hostname }}{{ else if (index .Alerts 0).Labels.instance }}{{ (index .Alerts 0).Labels.instance }}{{ else }}N/A{{ end }}
+          Application: {{ if (index .Alerts 0).Labels.application }}{{ (index .Alerts 0).Labels.application }}{{ else if (index .Alerts 0).Labels.app }}{{ (index .Alerts 0).Labels.app }}{{ else if (index .Alerts 0).Labels.job }}{{ (index .Alerts 0).Labels.job }}{{ else }}N/A{{ end }}
+          Description: {{ if (index .Alerts 0).Labels.description }}{{ (index .Alerts 0).Labels.description }}{{ else }}{{ (index .Alerts 0).Annotations.description }}{{ end }}
+          Logs: [View logs]({{ if (index .Alerts 0).Labels.url }}{{ (index .Alerts 0).Labels.url }}{{ else if (index .Alerts 0).Annotations.logs }}{{ (index .Alerts 0).Annotations.logs }}{{ else }}http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if (index .Alerts 0).Labels.name }}{{ (index .Alerts 0).Labels.name }}{{ else }}N/A{{ end }}\\\"}\"}]{{ end }})
+        send_resolved: true
+        icon_emoji: ':rotating_light:'
+        actions:
+          - type: button
+            text: 'View in Grafana/Loki'
+            url: "{{ if (index .Alerts 0).Labels.url }}{{ (index .Alerts 0).Labels.url }}{{ else if (index .Alerts 0).Annotations.logs }}{{ (index .Alerts 0).Annotations.logs }}{{ else }}http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if (index .Alerts 0).Labels.name }}{{ (index .Alerts 0).Labels.name }}{{ else }}N/A{{ end }}\\\"}\"}]{{ end }}"
 
-    - name: 'business-team'
-      slack_configs:
-        - channel: '#logs'
-          title: '🔥 {{ .CommonLabels.alertname }}'
-          text: |
-            :rotating_light: {{ .CommonLabels.severity | toUpper }}: {{ .CommonLabels.alertname }}
-            Status: {{ .Status | toUpper }}
-            Alert: {{ .CommonLabels.alertname }}
-            Container: {{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if (index .Alerts 0).Labels.name }}{{ (index .Alerts 0).Labels.name }}{{ else }}N/A{{ end }}
-            Host: {{ if (index .Alerts 0).Labels.host }}{{ (index .Alerts 0).Labels.host }}{{ else if (index .Alerts 0).Labels.hostname }}{{ (index .Alerts 0).Labels.hostname }}{{ else if (index .Alerts 0).Labels.instance }}{{ (index .Alerts 0).Labels.instance }}{{ else }}N/A{{ end }}
-            Application: {{ if (index .Alerts 0).Labels.application }}{{ (index .Alerts 0).Labels.application }}{{ else if (index .Alerts 0).Labels.app }}{{ (index .Alerts 0).Labels.app }}{{ else if (index .Alerts 0).Labels.job }}{{ (index .Alerts 0).Labels.job }}{{ else }}N/A{{ end }}
-            Description: {{ if (index .Alerts 0).Labels.description }}{{ (index .Alerts 0).Labels.description }}{{ else }}{{ (index .Alerts 0).Annotations.description }}{{ end }}
-            Logs: [View logs]({{ if (index .Alerts 0).Labels.url }}{{ (index .Alerts 0).Labels.url }}{{ else if (index .Alerts 0).Annotations.logs }}{{ (index .Alerts 0).Annotations.logs }}{{ else }}https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if (index .Alerts 0).Labels.name }}{{ (index .Alerts 0).Labels.name }}{{ else }}N/A{{ end }}\\\"}\"}]{{ end }})
-          send_resolved: true
-
-    - name: 'infrastructure-team'
-      slack_configs:
-        - channel: '#logs'
-          title: '🔥 {{ .CommonLabels.alertname }}'
-          text: |
-            :rotating_light: {{ .CommonLabels.severity | toUpper }}: {{ .CommonLabels.alertname }}
-            Status: {{ .Status | toUpper }}
-            Alert: {{ .CommonLabels.alertname }}
-            Container: {{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if (index .Alerts 0).Labels.name }}{{ (index .Alerts 0).Labels.name }}{{ else }}N/A{{ end }}
-            Host: {{ if (index .Alerts 0).Labels.host }}{{ (index .Alerts 0).Labels.host }}{{ else if (index .Alerts 0).Labels.hostname }}{{ (index .Alerts 0).Labels.hostname }}{{ else if (index .Alerts 0).Labels.instance }}{{ (index .Alerts 0).Labels.instance }}{{ else }}N/A{{ end }}
-            Application: {{ if (index .Alerts 0).Labels.application }}{{ (index .Alerts 0).Labels.application }}{{ else if (index .Alerts 0).Labels.app }}{{ (index .Alerts 0).Labels.app }}{{ else if (index .Alerts 0).Labels.job }}{{ (index .Alerts 0).Labels.job }}{{ else }}N/A{{ end }}
-            Description: {{ if (index .Alerts 0).Labels.description }}{{ (index .Alerts 0).Labels.description }}{{ else }}{{ (index .Alerts 0).Annotations.description }}{{ end }}
-            Logs: [View logs]({{ if (index .Alerts 0).Labels.url }}{{ (index .Alerts 0).Labels.url }}{{ else if (index .Alerts 0).Annotations.logs }}{{ (index .Alerts 0).Annotations.logs }}{{ else }}https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if (index .Alerts 0).Labels.name }}{{ (index .Alerts 0).Labels.name }}{{ else }}N/A{{ end }}\\\"}\"}]{{ end }})
-          send_resolved: true
-
-    - name: 'services-team'
-      slack_configs:
-        - channel: '#logs'
-          title: '🔥 {{ .CommonLabels.alertname }}'
-          text: |
-            :rotating_light: {{ .CommonLabels.severity | toUpper }}: {{ .CommonLabels.alertname }}
-            Status: {{ .Status | toUpper }}
-            Alert: {{ .CommonLabels.alertname }}
-            Container: {{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if (index .Alerts 0).Labels.name }}{{ (index .Alerts 0).Labels.name }}{{ else }}N/A{{ end }}
-            Host: {{ if (index .Alerts 0).Labels.host }}{{ (index .Alerts 0).Labels.host }}{{ else if (index .Alerts 0).Labels.hostname }}{{ (index .Alerts 0).Labels.hostname }}{{ else if (index .Alerts 0).Labels.instance }}{{ (index .Alerts 0).Labels.instance }}{{ else }}N/A{{ end }}
-            Application: {{ if (index .Alerts 0).Labels.application }}{{ (index .Alerts 0).Labels.application }}{{ else if (index .Alerts 0).Labels.app }}{{ (index .Alerts 0).Labels.app }}{{ else if (index .Alerts 0).Labels.job }}{{ (index .Alerts 0).Labels.job }}{{ else }}N/A{{ end }}
-            Description: {{ if (index .Alerts 0).Labels.description }}{{ (index .Alerts 0).Labels.description }}{{ else }}{{ (index .Alerts 0).Annotations.description }}{{ end }}
-            Logs: [View logs]({{ if (index .Alerts 0).Labels.url }}{{ (index .Alerts 0).Labels.url }}{{ else if (index .Alerts 0).Annotations.logs }}{{ (index .Alerts 0).Annotations.logs }}{{ else }}https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ if (index .Alerts 0).Labels.container }}{{ (index .Alerts 0).Labels.container }}{{ else if (index .Alerts 0).Labels.name }}{{ (index .Alerts 0).Labels.name }}{{ else }}N/A{{ end }}\\\"}\"}]{{ end }})
-          send_resolved: true
-
-  inhibit_rules:
-    # Inhibit critical alerts if the node is down
-    - source_match:
-        severity: 'critical'
-      target_match:
-        severity: 'warning'
-      equal: ['alertname', 'instance'] 
+inhibit_rules:
+  # Inhibit critical alerts if the node is down
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'instance'] 

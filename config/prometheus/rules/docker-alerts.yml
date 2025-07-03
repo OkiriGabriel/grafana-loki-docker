@@ -7,7 +7,6 @@ groups:
         for: 3m
         labels:
           severity: critical
-          team: infrastructure
           container: "{{ $labels.name }}"
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.name }}"
@@ -24,7 +23,6 @@ groups:
         for: 3m
         labels:
           severity: critical
-          team: infrastructure
           container: "{{ $labels.name }}"
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.name }}"
@@ -41,7 +39,6 @@ groups:
         for: 3m
         labels:
           severity: warning
-          team: infrastructure
           container: "{{ $labels.name }}"
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.name }}"
@@ -58,7 +55,6 @@ groups:
         for: 2m
         labels:
           severity: critical
-          team: infrastructure
           container: "{{ $labels.name }}"
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.name }}"
@@ -75,7 +71,6 @@ groups:
         for: 0s
         labels:
           severity: info
-          team: infrastructure
           container: "{{ $labels.name }}"
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.name }}"
@@ -92,7 +87,6 @@ groups:
         for: 0s
         labels:
           severity: info
-          team: infrastructure
           container: "{{ $labels.name }}"
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.name }}"
@@ -109,7 +103,6 @@ groups:
         for: 30s
         labels:
           severity: info
-          team: infrastructure
           container: "{{ $labels.name }}"
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.name }}"
@@ -126,7 +119,6 @@ groups:
         for: 5m
         labels:
           severity: warning
-          team: infrastructure
           container: "{{ $labels.name }}"
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.name }}"
@@ -145,7 +137,6 @@ groups:
         for: 10m
         labels:
           severity: warning
-          team: infrastructure
           container: "{{ $labels.name }}"
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.name }}"
@@ -162,7 +153,6 @@ groups:
         for: 10m
         labels:
           severity: warning
-          team: infrastructure
           container: "{{ $labels.name }}"
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.name }}"
@@ -179,7 +169,6 @@ groups:
         for: 10m
         labels:
           severity: warning
-          team: infrastructure
           container: "{{ $labels.name }}"
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.name }}"
@@ -198,7 +187,6 @@ groups:
         for: 1m
         labels:
           severity: critical
-          team: infrastructure
           container: "{{ $labels.job }}"
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.job }}"
@@ -310,7 +298,6 @@ groups:
         for: 15m
         labels:
           severity: warning
-          team: infrastructure
           container: "{{ $labels.name }}"
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.name }}"
