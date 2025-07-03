@@ -3,7 +3,7 @@ groups:
     rules:
       # Container Down - Not seen in metrics for over 1 minute
       - alert: ContainerDown
-        expr: absent(container_cpu_usage_seconds_total{name=~".+",name!=""}) or (time() - container_last_seen{name=~".+",name!=""}) > 60
+        expr: absent(container_cpu_usage_seconds_total{name=~".+",name!=""}) and absent(container_state{name=~".+",name!=""})
         for: 1m
         labels:
           severity: critical
@@ -88,7 +88,7 @@ groups:
 
       # Container Created (Optional - for monitoring new container creation)
       - alert: ContainerCreated
-        expr: increase(container_created_seconds{name=~".+",name!=""}[1m]) > 0
+        expr: increase(container_start_time_seconds{name=~".+",name!=""}[1m]) > 0
         for: 0s
         labels:
           severity: info
