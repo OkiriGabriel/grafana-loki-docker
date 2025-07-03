@@ -1,0 +1,21 @@
+apiVersion: 1
+
+groups:
+  - name: Simple Loki Alerts
+    folder: Loki
+    interval: 1m
+    rules:
+      - uid: simple-error-alert
+        title: Simple Error Alert
+        condition: A
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Error detected in logs"
+        data:
+          - refId: A
+            datasourceUid: loki
+            model:
+              expr: '{job="docker"} |= "ERROR"'
+              instant: true 
