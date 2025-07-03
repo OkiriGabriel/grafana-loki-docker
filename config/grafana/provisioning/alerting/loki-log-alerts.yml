@@ -8,8 +8,7 @@ groups:
       # Alert for critical HTTP errors in logs
       - uid: critical-http-errors
         title: Critical HTTP Errors
-        condition: |
-          sum(count_over_time({job="docker"} |= "500" |= "501" |= "502" |= "503" |= "504" |= "505" |= "401" |= "403" |= "404" [5m])) > 5
+        condition: A
         for: 2m
         labels:
           severity: critical
@@ -18,12 +17,17 @@ groups:
           summary: "🚨 CRITICAL: Critical HTTP errors detected in logs"
           description: "Critical HTTP errors (401, 403, 404, 500, 501, 502, 503) detected in container logs"
           logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{job=\\\"docker\\\"} |= \\\"500\\\" |= \\\"501\\\" |= \\\"502\\\" |= \\\"503\\\" |= \\\"504\\\" |= \\\"505\\\" |= \\\"401\\\" |= \\\"403\\\" |= \\\"404\\\"\"}]"
+        data:
+          - refId: A
+            datasourceUid: loki
+            model:
+              expr: sum(count_over_time({job="docker"} |= "500" |= "501" |= "502" |= "503" |= "504" |= "505" |= "401" |= "403" |= "404" [5m])) > 5
+              instant: true
 
       # Alert for general errors in logs
       - uid: general-errors
         title: General Errors
-        condition: |
-          sum(count_over_time({job="docker"} |= "error" |= "failed" |= "exception" |= "timeout" |= "connection refused" [5m])) > 10
+        condition: A
         for: 3m
         labels:
           severity: warning
@@ -32,12 +36,17 @@ groups:
           summary: "⚠️ WARNING: General errors detected in logs"
           description: "General errors (error, failed, exception, timeout, connection refused) detected in container logs"
           logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{job=\\\"docker\\\"} |= \\\"error\\\" |= \\\"failed\\\" |= \\\"exception\\\" |= \\\"timeout\\\" |= \\\"connection refused\\\"\"}]"
+        data:
+          - refId: A
+            datasourceUid: loki
+            model:
+              expr: sum(count_over_time({job="docker"} |= "error" |= "failed" |= "exception" |= "timeout" |= "connection refused" [5m])) > 10
+              instant: true
 
       # Alert for authentication errors
       - uid: auth-errors
         title: Authentication Errors
-        condition: |
-          sum(count_over_time({job="docker"} |= "401" |= "403" |= "unauthorized" |= "forbidden" [5m])) > 3
+        condition: A
         for: 2m
         labels:
           severity: critical
@@ -46,12 +55,17 @@ groups:
           summary: "🚨 CRITICAL: Authentication errors detected in logs"
           description: "Authentication errors (401, 403, unauthorized, forbidden) detected in container logs"
           logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{job=\\\"docker\\\"} |= \\\"401\\\" |= \\\"403\\\" |= \\\"unauthorized\\\" |= \\\"forbidden\\\"\"}]"
+        data:
+          - refId: A
+            datasourceUid: loki
+            model:
+              expr: sum(count_over_time({job="docker"} |= "401" |= "403" |= "unauthorized" |= "forbidden" [5m])) > 3
+              instant: true
 
       # Alert for server errors
       - uid: server-errors
         title: Server Errors
-        condition: |
-          sum(count_over_time({job="docker"} |= "500" |= "502" |= "503" |= "504" |= "505" |= "internal server error" [5m])) > 3
+        condition: A
         for: 2m
         labels:
           severity: critical
@@ -60,12 +74,17 @@ groups:
           summary: "🚨 CRITICAL: Server errors detected in logs"
           description: "Server errors (500, 502, 503, 504, 505, internal server error) detected in container logs"
           logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{job=\\\"docker\\\"} |= \\\"500\\\" |= \\\"502\\\" |= \\\"503\\\" |= \\\"504\\\" |= \\\"505\\\" |= \\\"internal server error\\\"\"}]"
+        data:
+          - refId: A
+            datasourceUid: loki
+            model:
+              expr: sum(count_over_time({job="docker"} |= "500" |= "502" |= "503" |= "504" |= "505" |= "internal server error" [5m])) > 3
+              instant: true
 
       # Alert for Docker-specific errors
       - uid: docker-errors
         title: Docker Errors
-        condition: |
-          sum(count_over_time({job="docker"} |= "container" |= "image" |= "permission" |= "network" |= "volume" |= "docker" [5m])) > 2
+        condition: A
         for: 2m
         labels:
           severity: critical
@@ -73,4 +92,10 @@ groups:
         annotations:
           summary: "🚨 CRITICAL: Docker errors detected in logs"
           description: "Docker-specific errors (container, image, permission, network, volume, docker) detected in container logs"
-          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{job=\\\"docker\\\"} |= \\\"container\\\" |= \\\"image\\\" |= \\\"permission\\\" |= \\\"network\\\" |= \\\"volume\\\" |= \\\"docker\\\"\"}]" 
+          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{job=\\\"docker\\\"} |= \\\"container\\\" |= \\\"image\\\" |= \\\"permission\\\" |= \\\"network\\\" |= \\\"volume\\\" |= \\\"docker\\\"\"}]"
+        data:
+          - refId: A
+            datasourceUid: loki
+            model:
+              expr: sum(count_over_time({job="docker"} |= "container" |= "image" |= "permission" |= "network" |= "volume" |= "docker" [5m])) > 2
+              instant: true 
