@@ -123,6 +123,17 @@ scrape_configs:
   - job_name: 'loki'
     static_configs:
       - targets: ['loki:3100']
+    metrics_path: /metrics
+    scrape_interval: 15s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        regex: 'loki:3100'
+        replacement: '${HOSTNAME}'
+        action: replace
+      - source_labels: [instance]
+        target_label: hostname
+        action: replace
 
   # Alertmanager
   - job_name: 'alertmanager'
@@ -134,23 +145,63 @@ scrape_configs:
     static_configs:
       - targets: ['grafana:3000']
 
+  # Remote Server Monitoring (Optional - Only if you need system metrics)
+  # Since you're using Promtail for log collection, these sections are optional
+  # Uncomment only if you want to monitor system resources (CPU, memory, disk) on remote servers
+  
   # EC2 Instances (replace with your actual EC2 private IPs)
   # - job_name: 'ec2-instances'
   #   static_configs:
   #     - targets:
-  #       - '10.0.1.10:9100'  # Replace with your EC2 private IPs
-  #       - '10.0.1.11:9100'
-  #       - '10.0.1.12:9100'
+  #       - 'YOUR_EC2_PRIVATE_IP_1:9100'  # Replace with your actual EC2 private IPs
+  #       - 'YOUR_EC2_PRIVATE_IP_2:9100'
+  #       - 'YOUR_EC2_PRIVATE_IP_3:9100'
   #   scrape_interval: 30s
+  #   relabel_configs:
+  #     - source_labels: [__address__]
+  #       target_label: instance
+  #       regex: '(.+):.+'
+  #       replacement: '${1}'
+  #       action: replace
+  #     - source_labels: [instance]
+  #       target_label: hostname
+  #       action: replace
 
   # DigitalOcean Droplets (replace with your actual droplet IPs)
   # - job_name: 'digitalocean-droplets'
   #   static_configs:
   #     - targets:
-  #       - '192.168.1.10:9100'  # Replace with your droplet IPs
-  #       - '192.168.1.11:9100'
-  #       - '192.168.1.12:9100'
+  #       - 'YOUR_DROPLET_IP_1:9100'  # Replace with your actual droplet IPs
+  #       - 'YOUR_DROPLET_IP_2:9100'
+  #       - 'YOUR_DROPLET_IP_3:9100'
   #   scrape_interval: 30s
+  #   relabel_configs:
+  #     - source_labels: [__address__]
+  #       target_label: instance
+  #       regex: '(.+):.+'
+  #       replacement: '${1}'
+  #       action: replace
+  #     - source_labels: [instance]
+  #       target_label: hostname
+  #       action: replace
+
+  # Remote cAdvisor instances (Optional - Only if you want container metrics from remote servers)
+  # - job_name: 'remote-cadvisor'
+  #   static_configs:
+  #     - targets:
+  #       - 'YOUR_SERVER_IP_1:8080'  # cAdvisor on server 1
+  #       - 'YOUR_SERVER_IP_2:8080'  # cAdvisor on server 2
+  #       - 'YOUR_SERVER_IP_3:8080'  # cAdvisor on server 3
+  #   scrape_interval: 30s
+  #   relabel_configs:
+  #     - source_labels: [__address__]
+  #       target_label: instance
+  #       regex: '(.+):.+'
+  #       replacement: '${1}'
+  #       action: replace
+  #     - source_labels: [instance]
+  #       target_label: hostname
+  #       action: replace
 
   # Application Services (replace with your actual service endpoints)
   # - job_name: 'application-services'

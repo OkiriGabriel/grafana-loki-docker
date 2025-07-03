@@ -1,0 +1,264 @@
+{
+    "id": null,
+    "title": "Container Monitoring Dashboard",
+    "tags": ["docker", "containers", "monitoring"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Container Status Summary",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "count(container_state{state=\"running\"})",
+            "legendFormat": "Running"
+          },
+          {
+            "expr": "count(container_state{state=\"exited\"})",
+            "legendFormat": "Exited"
+          },
+          {
+            "expr": "count(container_state{state=\"created\"})",
+            "legendFormat": "Created"
+          },
+          {
+            "expr": "count(container_state{state=\"paused\"})",
+            "legendFormat": "Paused"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "colorMode": "value",
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 1},
+                {"color": "red", "value": 5}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Running Containers by Host",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "count by (hostname) (container_state{state=\"running\"})",
+            "format": "table",
+            "instant": true
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "colorMode": "value"
+          }
+        },
+        "gridPos": {"h": 6, "w": 12, "x": 6, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Container List (Running)",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "container_state{state=\"running\"}",
+            "format": "table",
+            "instant": true
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "colorMode": "value"
+          }
+        },
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 6}
+      },
+      {
+        "id": 4,
+        "title": "Container Memory Usage (Running Only)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "(container_memory_usage_bytes / container_spec_memory_limit_bytes * 100) and container_state{state=\"running\"}",
+            "legendFormat": "{{name}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100,
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 80},
+                {"color": "red", "value": 90}
+              ]
+            },
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear"
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 14}
+      },
+      {
+        "id": 5,
+        "title": "Container CPU Usage (Running Only)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(container_cpu_usage_seconds_total[5m]) * 100 and container_state{state=\"running\"}",
+            "legendFormat": "{{name}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100,
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 80},
+                {"color": "red", "value": 90}
+              ]
+            },
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear"
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 14}
+      },
+      {
+        "id": 6,
+        "title": "Container Restart Count (Last Hour)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "increase(container_start_time_seconds[1h])",
+            "legendFormat": "{{name}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "custom": {
+              "drawStyle": "bars",
+              "lineInterpolation": "linear"
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 22}
+      },
+      {
+        "id": 7,
+        "title": "Container Exit Codes (Non-Zero)",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "container_exit_code != 0",
+            "format": "table",
+            "instant": true
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "colorMode": "value",
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "red", "value": 1}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 22}
+      },
+      {
+        "id": 8,
+        "title": "Container Network I/O",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(container_network_receive_bytes_total[5m])",
+            "legendFormat": "{{name}} - Receive"
+          },
+          {
+            "expr": "rate(container_network_transmit_bytes_total[5m])",
+            "legendFormat": "{{name}} - Transmit"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "bytes",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear"
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 30}
+      },
+      {
+        "id": 9,
+        "title": "Container Disk I/O",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(container_fs_reads_bytes_total[5m])",
+            "legendFormat": "{{name}} - Read"
+          },
+          {
+            "expr": "rate(container_fs_writes_bytes_total[5m])",
+            "legendFormat": "{{name}} - Write"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "bytes",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear"
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 30}
+      },
+      {
+        "id": 10,
+        "title": "All Container States",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "container_state",
+            "format": "table",
+            "instant": true
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "colorMode": "value"
+          }
+        },
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 38}
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "30s"
+} 

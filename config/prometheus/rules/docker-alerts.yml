@@ -1,95 +1,56 @@
 groups:
-  - name: docker-container-health
+  - name: docker-container-lifecycle
     rules:
-      # Container Down/Stopped
+      # Container Down - Not seen in metrics for over 1 minute
       - alert: ContainerDown
-        expr: (time() - container_last_seen) > 60
+        expr: absent(container_cpu_usage_seconds_total{name=~".+"}) or (time() - container_last_seen) > 60
         for: 1m
         labels:
           severity: critical
           team: infrastructure
-          type: container
           container: "{{ $labels.name }}"
-          hostname: "{{ $labels.hostname }}"
-          app: "{{ $labels.name }}"
+          host: "{{ $labels.hostname }}"
+          application: "{{ $labels.name }}"
+          description: "Container has not been seen for over 1m — it may have exited or crashed"
+          url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
         annotations:
-          summary: "Container {{ $labels.name }} is down"
-          description: "Container {{ $labels.name }} has been down for more than 1 minute on host {{ $labels.hostname }}"
+          summary: "🚨 CRITICAL: ContainerDown"
+          description: "Container {{ $labels.name }} has not been seen for over 1m — it may have exited or crashed on host {{ $labels.hostname }}"
+          logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
 
-      # Container Exited/Stopped (more reliable)
+      # Container Exited/Stopped
       - alert: ContainerExited
         expr: container_state{state="exited"} == 1
         for: 30s
         labels:
           severity: critical
           team: infrastructure
-          type: container
           container: "{{ $labels.name }}"
-          hostname: "{{ $labels.hostname }}"
-          app: "{{ $labels.name }}"
+          host: "{{ $labels.hostname }}"
+          application: "{{ $labels.name }}"
+          description: "Container has exited or stopped"
+          url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
         annotations:
-          summary: "Container {{ $labels.name }} has exited"
+          summary: "🚨 CRITICAL: ContainerExited"
           description: "Container {{ $labels.name }} has exited/stopped on host {{ $labels.hostname }}"
+          logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
 
-      # Container Not Running
+      # Container Not Running (but not exited - likely restarting)
       - alert: ContainerNotRunning
-        expr: container_state{state="running"} == 0
-        for: 1m
-        labels:
-          severity: critical
-          team: infrastructure
-          type: container
-          container: "{{ $labels.name }}"
-          hostname: "{{ $labels.hostname }}"
-          app: "{{ $labels.name }}"
-        annotations:
-          summary: "Container {{ $labels.name }} is not running"
-          description: "Container {{ $labels.name }} is not in running state on host {{ $labels.hostname }}"
-
-      # Service Down (for non-container services)
-      - alert: ServiceDown
-        expr: up == 0
-        for: 1m
-        labels:
-          severity: critical
-          team: infrastructure
-          type: service
-          container: "{{ $labels.job }}"
-          hostname: "{{ $labels.instance }}"
-          app: "{{ $labels.job }}"
-        annotations:
-          summary: "Service {{ $labels.job }} is down"
-          description: "Service {{ $labels.job }} on {{ $labels.instance }} has been down for more than 1 minute"
-
-      # Container Restarting Frequently
-      - alert: ContainerRestarting
-        expr: increase(container_start_time_seconds[15m]) > 5
-        for: 5m
-        labels:
-          severity: warning
-          team: infrastructure
-          type: container
-          container: "{{ $labels.name }}"
-          hostname: "{{ $labels.hostname }}"
-          app: "{{ $labels.name }}"
-        annotations:
-          summary: "Container {{ $labels.name }} is restarting frequently"
-          description: "Container {{ $labels.name }} has restarted more than 5 times in the last 15 minutes on host {{ $labels.hostname }}"
-
-      # Container in Restarting State
-      - alert: ContainerInRestartingState
         expr: container_state{state="running"} == 0 and container_state{state="exited"} == 0
         for: 2m
         labels:
           severity: warning
           team: infrastructure
-          type: container
           container: "{{ $labels.name }}"
-          hostname: "{{ $labels.hostname }}"
-          app: "{{ $labels.name }}"
+          host: "{{ $labels.hostname }}"
+          application: "{{ $labels.name }}"
+          description: "Container is not running and not exited - likely restarting"
+          url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
         annotations:
-          summary: "Container {{ $labels.name }} is in restarting state"
+          summary: "⚠️ WARNING: ContainerNotRunning"
           description: "Container {{ $labels.name }} is neither running nor exited (likely restarting) on host {{ $labels.hostname }}"
+          logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
 
       # Container Exit Code Non-Zero
       - alert: ContainerExitedWithError
@@ -98,14 +59,35 @@ groups:
         labels:
           severity: critical
           team: infrastructure
-          type: container
           container: "{{ $labels.name }}"
-          hostname: "{{ $labels.hostname }}"
-          app: "{{ $labels.name }}"
+          host: "{{ $labels.hostname }}"
+          application: "{{ $labels.name }}"
+          description: "Container exited with non-zero exit code"
+          url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
         annotations:
-          summary: "Container {{ $labels.name }} exited with error code {{ $value }}"
+          summary: "🚨 CRITICAL: ContainerExitedWithError"
           description: "Container {{ $labels.name }} exited with non-zero exit code {{ $value }} on host {{ $labels.hostname }}"
+          logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
 
+      # Container Restarting Frequently
+      - alert: ContainerRestarting
+        expr: increase(container_start_time_seconds[15m]) > 5
+        for: 5m
+        labels:
+          severity: warning
+          team: infrastructure
+          container: "{{ $labels.name }}"
+          host: "{{ $labels.hostname }}"
+          application: "{{ $labels.name }}"
+          description: "Container is restarting frequently"
+          url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
+        annotations:
+          summary: "⚠️ WARNING: ContainerRestarting"
+          description: "Container {{ $labels.name }} has restarted more than 5 times in the last 15 minutes on host {{ $labels.hostname }}"
+          logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
+
+  - name: docker-container-resources
+    rules:
       # Container High Memory Usage
       - alert: ContainerHighMemoryUsage
         expr: (container_memory_usage_bytes / container_spec_memory_limit_bytes * 100) > 85
@@ -113,13 +95,15 @@ groups:
         labels:
           severity: warning
           team: infrastructure
-          type: container
           container: "{{ $labels.name }}"
-          hostname: "{{ $labels.hostname }}"
-          app: "{{ $labels.name }}"
+          host: "{{ $labels.hostname }}"
+          application: "{{ $labels.name }}"
+          description: "Container is using more than 85% of memory limit"
+          url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
         annotations:
-          summary: "Container {{ $labels.name }} high memory usage"
+          summary: "⚠️ WARNING: ContainerHighMemoryUsage"
           description: "Container {{ $labels.name }} is using more than 85% of memory limit on host {{ $labels.hostname }}"
+          logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
 
       # Container High CPU Usage
       - alert: ContainerHighCPUUsage
@@ -128,13 +112,51 @@ groups:
         labels:
           severity: warning
           team: infrastructure
-          type: container
           container: "{{ $labels.name }}"
-          hostname: "{{ $labels.hostname }}"
-          app: "{{ $labels.name }}"
+          host: "{{ $labels.hostname }}"
+          application: "{{ $labels.name }}"
+          description: "Container is using more than 80% CPU"
+          url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
         annotations:
-          summary: "Container {{ $labels.name }} high CPU usage"
+          summary: "⚠️ WARNING: ContainerHighCPUUsage"
           description: "Container {{ $labels.name }} is using more than 80% CPU on host {{ $labels.hostname }}"
+          logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
+
+      # Container High Disk I/O
+      - alert: ContainerHighDiskIO
+        expr: rate(container_fs_reads_total[5m]) + rate(container_fs_writes_total[5m]) > 1000
+        for: 5m
+        labels:
+          severity: warning
+          team: infrastructure
+          container: "{{ $labels.name }}"
+          host: "{{ $labels.hostname }}"
+          application: "{{ $labels.name }}"
+          description: "Container has high disk I/O activity"
+          url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
+        annotations:
+          summary: "⚠️ WARNING: ContainerHighDiskIO"
+          description: "Container {{ $labels.name }} has high disk I/O activity on host {{ $labels.hostname }}"
+          logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
+
+  - name: docker-service-health
+    rules:
+      # Service Down (for non-container services)
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: infrastructure
+          container: "{{ $labels.job }}"
+          host: "{{ $labels.instance }}"
+          application: "{{ $labels.job }}"
+          description: "Service is down"
+          url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{job=\\\"{{ $labels.job }}\\\"}\"}]"
+        annotations:
+          summary: "🚨 CRITICAL: ServiceDown"
+          description: "Service {{ $labels.job }} on {{ $labels.instance }} has been down for more than 1 minute"
+          logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{job=\\\"{{ $labels.job }}\\\"}\"}]"
 
   - name: docker-business-failures
     rules:
@@ -241,8 +263,6 @@ groups:
         annotations:
           summary: "Possible memory leak in {{ $labels.name }}"
           description: "Container {{ $labels.name }} memory usage increased by {{ $value }} bytes in the last hour on host {{ $labels.hostname }}"
-
-
 
   - name: docker-infrastructure
     rules:

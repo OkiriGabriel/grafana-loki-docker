@@ -29,6 +29,7 @@ services:
     command: -config.file=/etc/loki/local-config.yaml
     volumes:
       - ./config/loki/loki-config.yaml:/etc/loki/local-config.yaml
+      - ./config/loki/rules:/loki/rules
       - loki-storage:/loki
     networks:
       - monitoring
@@ -120,6 +121,24 @@ services:
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
+    networks:
+      - monitoring
+
+  # Promtail - Log Collection
+  promtail:
+    image: grafana/promtail:latest
+    container_name: promtail
+    restart: unless-stopped
+    ports:
+      - "9080:9080"
+    environment:
+      - HOSTNAME=${HOSTNAME:-$(hostname)}
+    command: -config.file=/etc/promtail/promtail-config.yml
+    volumes:
+      - ./config/promtail/promtail-config.yml:/etc/promtail/promtail-config.yml
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - monitoring
 

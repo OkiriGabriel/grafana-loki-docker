@@ -133,17 +133,33 @@
       },
       {
         "id": 6,
-        "title": "Container Count",
+        "title": "Container Status",
         "type": "stat",
         "targets": [
           {
-            "expr": "count(container_cpu_usage_seconds_total)",
-            "legendFormat": "Total Containers"
+            "expr": "count(container_state{state=\"running\"})",
+            "legendFormat": "Running Containers"
+          },
+          {
+            "expr": "count(container_state{state=\"exited\"})",
+            "legendFormat": "Exited Containers"
+          },
+          {
+            "expr": "count(container_state{state=\"created\"})",
+            "legendFormat": "Created Containers"
           }
         ],
         "fieldConfig": {
           "defaults": {
-            "unit": "short"
+            "unit": "short",
+            "colorMode": "value",
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 1},
+                {"color": "red", "value": 5}
+              ]
+            }
           }
         },
         "gridPos": {"h": 4, "w": 6, "x": 6, "y": 16}

@@ -1,3 +1,6 @@
+# Promtail Configuration Template for Remote Servers
+# Copy this file to each remote server and customize the HOSTNAME
+
 server:
   http_listen_port: 9080
   grpc_listen_port: 0
@@ -6,7 +9,8 @@ positions:
   filename: /tmp/positions.yaml
 
 clients:
-  - url: http://loki:3100/loki/api/v1/push
+  # Update this URL to point to your Loki server
+  - url: http://YOUR_LOKI_SERVER_IP:3100/loki/api/v1/push
 
 scrape_configs:
   # Docker container logs
@@ -37,9 +41,9 @@ scrape_configs:
         target_label: 'image'
       - source_labels: ['__meta_docker_container_id']
         target_label: 'container_id'
-      # Add hostname label for multi-server monitoring
+      # Set the actual hostname for this server
       - target_label: 'hostname'
-        replacement: '${HOSTNAME}'
+        replacement: 'YOUR_SERVER_HOSTNAME'  # Replace with actual hostname
     pipeline_stages:
       # Try to parse JSON logs first
       - json:
@@ -101,7 +105,7 @@ scrape_configs:
           - localhost
         labels:
           job: varlogs
-          hostname: '${HOSTNAME}'
+          hostname: 'YOUR_SERVER_HOSTNAME'  # Replace with actual hostname
           __path__: /var/log/*log
 
   # Application logs
@@ -111,7 +115,7 @@ scrape_configs:
           - localhost
         labels:
           job: app-logs
-          hostname: '${HOSTNAME}'
+          hostname: 'YOUR_SERVER_HOSTNAME'  # Replace with actual hostname
           __path__: /var/log/applications/*.log
 
   # Custom log paths for your applications
@@ -122,7 +126,7 @@ scrape_configs:
         labels:
           job: remittance
           product: remittance
-          hostname: '${HOSTNAME}'
+          hostname: 'YOUR_SERVER_HOSTNAME'  # Replace with actual hostname
           __path__: /var/log/remittance/*.log
 
   - job_name: collection-logs
@@ -132,7 +136,7 @@ scrape_configs:
         labels:
           job: collection
           product: collection
-          hostname: '${HOSTNAME}'
+          hostname: 'YOUR_SERVER_HOSTNAME'  # Replace with actual hostname
           __path__: /var/log/collection/*.log
 
   - job_name: agency-logs
@@ -142,7 +146,7 @@ scrape_configs:
         labels:
           job: agency
           product: agency
-          hostname: '${HOSTNAME}'
+          hostname: 'YOUR_SERVER_HOSTNAME'  # Replace with actual hostname
           __path__: /var/log/agency/*.log
 
   # Nginx logs
@@ -152,7 +156,7 @@ scrape_configs:
           - localhost
         labels:
           job: nginx
-          hostname: '${HOSTNAME}'
+          hostname: 'YOUR_SERVER_HOSTNAME'  # Replace with actual hostname
           __path__: /var/log/nginx/*.log
 
   # Apache logs
@@ -162,7 +166,7 @@ scrape_configs:
           - localhost
         labels:
           job: apache
-          hostname: '${HOSTNAME}'
+          hostname: 'YOUR_SERVER_HOSTNAME'  # Replace with actual hostname
           __path__: /var/log/apache2/*.log
 
   # Docker events (for container lifecycle monitoring)
@@ -172,7 +176,5 @@ scrape_configs:
           - localhost
         labels:
           job: docker-events
-          hostname: '${HOSTNAME}'
-          __path__: /var/lib/docker/containers/*/*-json.log
-
- 
+          hostname: 'YOUR_SERVER_HOSTNAME'  # Replace with actual hostname
+          __path__: /var/lib/docker/containers/*/*-json.log 

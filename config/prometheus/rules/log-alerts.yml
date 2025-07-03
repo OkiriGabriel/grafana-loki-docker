@@ -1,92 +1,124 @@
 groups:
   - name: log-monitoring
     rules:
-      # Container Log Errors - Critical HTTP Errors
+      # Recording rule for HTTP error logs (401, 403, 404, 500, 501, 502, 503)
+      - record: log_http_errors_total
+        expr: sum by (container, hostname, job) (increase(log_entries_total{message=~".*401.*|.*403.*|.*404.*|.*500.*|.*501.*|.*502.*|.*503.*"}[5m]))
+
+      # Recording rule for general error logs
+      - record: log_general_errors_total
+        expr: sum by (container, hostname, job) (increase(log_entries_total{message=~".*error.*|.*ERROR.*|.*failed.*|.*FAILED.*|.*exception.*|.*EXCEPTION.*|.*timeout.*|.*TIMEOUT.*|.*connection refused.*|.*CONNECTION REFUSED.*"}[5m]))
+
+      # Recording rule for authentication errors
+      - record: log_auth_errors_total
+        expr: sum by (container, hostname, job) (increase(log_entries_total{message=~".*401.*|.*403.*|.*unauthorized.*|.*UNAUTHORIZED.*|.*forbidden.*|.*FORBIDDEN.*|.*authentication.*failed.*|.*AUTHENTICATION.*FAILED.*"}[5m]))
+
+      # Recording rule for server errors
+      - record: log_server_errors_total
+        expr: sum by (container, hostname, job) (increase(log_entries_total{message=~".*500.*|.*502.*|.*503.*|.*504.*|.*505.*|.*internal.*server.*error.*|.*INTERNAL.*SERVER.*ERROR.*"}[5m]))
+
+      # Recording rule for client errors
+      - record: log_client_errors_total
+        expr: sum by (container, hostname, job) (increase(log_entries_total{message=~".*400.*|.*404.*|.*405.*|.*406.*|.*408.*|.*409.*|.*410.*|.*411.*|.*412.*|.*413.*|.*414.*|.*415.*|.*416.*|.*417.*|.*418.*|.*422.*|.*423.*|.*424.*|.*425.*|.*426.*|.*428.*|.*429.*|.*431.*|.*451.*"}[5m]))
+
+      # Alert for critical HTTP errors
       - alert: ContainerLogCriticalHTTPErrors
-        expr: increase(container_log_entries_total{container=~".*", level=~".*error.*|.*ERROR.*|.*errored.*|.*ERRORED.*", message=~".*403.*|.*404.*|.*503.*|.*501.*|.*401.*|.*500.*"}[5m]) > 5
+        expr: log_http_errors_total > 5
         for: 2m
         labels:
           severity: critical
           team: infrastructure
-          type: log_error
           container: "{{ $labels.container }}"
-          hostname: "{{ $labels.instance }}"
-          app: "{{ $labels.job }}"
+          host: "{{ $labels.hostname }}"
+          application: "{{ $labels.job }}"
+          description: "Critical HTTP errors detected in container logs"
+          url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
         annotations:
-          summary: "Critical HTTP errors detected in {{ $labels.container }} logs"
-          description: "Container {{ $labels.container }} is logging critical HTTP errors (403, 404, 503, 501, 401, 500) on host {{ $labels.instance }}"
+          summary: "🚨 CRITICAL: ContainerLogCriticalHTTPErrors"
+          description: "Container {{ $labels.container }} is logging critical HTTP errors (401, 403, 404, 500, 501, 502, 503) on host {{ $labels.hostname }}"
+          logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
 
-      # Container Log Errors - General Errors
+      # Alert for general errors
       - alert: ContainerLogGeneralErrors
-        expr: increase(container_log_entries_total{container=~".*", level=~".*error.*|.*ERROR.*|.*errored.*|.*ERRORED.*|.*failed.*|.*exception.*|.*timeout.*|.*connection refused.*"}[5m]) > 10
+        expr: log_general_errors_total > 10
         for: 3m
         labels:
           severity: warning
           team: infrastructure
-          type: log_error
           container: "{{ $labels.container }}"
-          hostname: "{{ $labels.instance }}"
-          app: "{{ $labels.job }}"
+          host: "{{ $labels.hostname }}"
+          application: "{{ $labels.job }}"
+          description: "General errors detected in container logs"
+          url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
         annotations:
-          summary: "General errors detected in {{ $labels.container }} logs"
-          description: "Container {{ $labels.container }} is logging general errors (error, errored, failed, exception, timeout, connection refused) on host {{ $labels.instance }}"
+          summary: "⚠️ WARNING: ContainerLogGeneralErrors"
+          description: "Container {{ $labels.container }} is logging general errors (error, failed, exception, timeout, connection refused) on host {{ $labels.hostname }}"
+          logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
 
-      # Container Log Errors - High Error Rate
+      # Alert for authentication errors
+      - alert: ContainerLogAuthErrors
+        expr: log_auth_errors_total > 3
+        for: 2m
+        labels:
+          severity: critical
+          team: infrastructure
+          container: "{{ $labels.container }}"
+          host: "{{ $labels.hostname }}"
+          application: "{{ $labels.job }}"
+          description: "Authentication errors detected in container logs"
+          url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
+        annotations:
+          summary: "🚨 CRITICAL: ContainerLogAuthErrors"
+          description: "Container {{ $labels.container }} is logging authentication errors (401, 403, unauthorized, forbidden) on host {{ $labels.hostname }}"
+          logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
+
+      # Alert for server errors
+      - alert: ContainerLogServerErrors
+        expr: log_server_errors_total > 3
+        for: 2m
+        labels:
+          severity: critical
+          team: infrastructure
+          container: "{{ $labels.container }}"
+          host: "{{ $labels.hostname }}"
+          application: "{{ $labels.job }}"
+          description: "Server errors detected in container logs"
+          url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
+        annotations:
+          summary: "🚨 CRITICAL: ContainerLogServerErrors"
+          description: "Container {{ $labels.container }} is logging server errors (500, 502, 503, 504, 505, internal server error) on host {{ $labels.hostname }}"
+          logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
+
+      # Alert for client errors
+      - alert: ContainerLogClientErrors
+        expr: log_client_errors_total > 10
+        for: 3m
+        labels:
+          severity: warning
+          team: infrastructure
+          container: "{{ $labels.container }}"
+          host: "{{ $labels.hostname }}"
+          application: "{{ $labels.job }}"
+          description: "Client errors detected in container logs"
+          url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
+        annotations:
+          summary: "⚠️ WARNING: ContainerLogClientErrors"
+          description: "Container {{ $labels.container }} is logging client errors (4xx status codes) on host {{ $labels.hostname }}"
+          logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
+
+      # Alert for high error rate
       - alert: ContainerLogHighErrorRate
-        expr: increase(container_log_entries_total{container=~".*", level=~".*error.*|.*ERROR.*|.*errored.*|.*ERRORED.*"}[1m]) > 20
+        expr: rate(log_general_errors_total[1m]) > 20
         for: 1m
         labels:
           severity: critical
           team: infrastructure
-          type: log_error
           container: "{{ $labels.container }}"
-          hostname: "{{ $labels.instance }}"
-          app: "{{ $labels.job }}"
+          host: "{{ $labels.hostname }}"
+          application: "{{ $labels.job }}"
+          description: "High error rate detected in container logs"
+          url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
         annotations:
-          summary: "High error rate detected in {{ $labels.container }} logs"
-          description: "Container {{ $labels.container }} is logging errors at a high rate (error, errored) on host {{ $labels.instance }}"
-
-      # Container Log Errors - Authentication Errors
-      - alert: ContainerLogAuthErrors
-        expr: increase(container_log_entries_total{container=~".*", message=~".*401.*|.*403.*|.*unauthorized.*|.*forbidden.*|.*authentication.*failed.*"}[5m]) > 3
-        for: 2m
-        labels:
-          severity: critical
-          team: infrastructure
-          type: auth_error
-          container: "{{ $labels.container }}"
-          hostname: "{{ $labels.instance }}"
-          app: "{{ $labels.job }}"
-        annotations:
-          summary: "Authentication errors detected in {{ $labels.container }} logs"
-          description: "Container {{ $labels.container }} is logging authentication errors (401, 403, unauthorized, forbidden) on host {{ $labels.instance }}"
-
-      # Container Log Errors - Server Errors
-      - alert: ContainerLogServerErrors
-        expr: increase(container_log_entries_total{container=~".*", message=~".*500.*|.*502.*|.*503.*|.*504.*|.*505.*|.*internal.*server.*error.*"}[5m]) > 3
-        for: 2m
-        labels:
-          severity: critical
-          team: infrastructure
-          type: server_error
-          container: "{{ $labels.container }}"
-          hostname: "{{ $labels.instance }}"
-          app: "{{ $labels.job }}"
-        annotations:
-          summary: "Server errors detected in {{ $labels.container }} logs"
-          description: "Container {{ $labels.container }} is logging server errors (500, 502, 503, 504, 505, internal server error) on host {{ $labels.instance }}"
-
-      # Container Log Errors - Client Errors
-      - alert: ContainerLogClientErrors
-        expr: increase(container_log_entries_total{container=~".*", message=~".*400.*|.*404.*|.*405.*|.*406.*|.*408.*|.*409.*|.*410.*|.*411.*|.*412.*|.*413.*|.*414.*|.*415.*|.*416.*|.*417.*|.*418.*|.*422.*|.*423.*|.*424.*|.*425.*|.*426.*|.*428.*|.*429.*|.*431.*|.*451.*"}[5m]) > 10
-        for: 3m
-        labels:
-          severity: warning
-          team: infrastructure
-          type: client_error
-          container: "{{ $labels.container }}"
-          hostname: "{{ $labels.instance }}"
-          app: "{{ $labels.job }}"
-        annotations:
-          summary: "Client errors detected in {{ $labels.container }} logs"
-          description: "Container {{ $labels.container }} is logging client errors (4xx status codes) on host {{ $labels.instance }}" 
+          summary: "🚨 CRITICAL: ContainerLogHighErrorRate"
+          description: "Container {{ $labels.container }} is logging errors at a high rate on host {{ $labels.hostname }}"
+          logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]" 
