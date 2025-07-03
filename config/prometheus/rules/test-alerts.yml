@@ -1,0 +1,13 @@
+groups:
+  - name: test-alerts
+    rules:
+      # Simple test alert - should fire if any container is using CPU
+      - alert: TestContainerCPU
+        expr: container_cpu_usage_seconds_total > 0
+        for: 0s
+        labels:
+          severity: info
+          description: "Test alert - container CPU usage detected"
+        annotations:
+          summary: "🧪 TEST: Container CPU Usage"
+          description: "Container CPU usage detected: {{ $value }}" 
