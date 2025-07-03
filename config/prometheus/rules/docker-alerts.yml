@@ -141,7 +141,7 @@ groups:
 
       # Container High CPU Usage
       - alert: ContainerHighCPUUsage
-        expr: rate(container_cpu_usage_seconds_total[5m]) * 100 > 80
+        expr: rate(container_cpu_usage_seconds_total{name=~".+",name!=""}[5m]) * 100 > 80
         for: 5m
         labels:
           severity: warning
@@ -158,7 +158,7 @@ groups:
 
       # Container High Disk I/O
       - alert: ContainerHighDiskIO
-        expr: rate(container_fs_reads_total[5m]) + rate(container_fs_writes_total[5m]) > 1000
+        expr: rate(container_fs_reads_total{name=~".+",name!=""}[5m]) + rate(container_fs_writes_total{name=~".+",name!=""}[5m]) > 1000
         for: 5m
         labels:
           severity: warning
@@ -332,7 +332,7 @@ groups:
 
       # Too Many Containers
       - alert: TooManyContainers
-        expr: count(container_cpu_usage_seconds_total) > 50
+        expr: count(container_cpu_usage_seconds_total{name=~".+",name!=""}) > 50
         for: 5m
         labels:
           severity: warning
