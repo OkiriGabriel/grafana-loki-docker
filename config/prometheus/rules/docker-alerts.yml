@@ -3,7 +3,7 @@ groups:
     rules:
       # Container Down - Not seen in metrics for over 1 minute
       - alert: ContainerDown
-        expr: absent(container_cpu_usage_seconds_total{name=~".+",name!=""}) and absent(container_state{name=~".+",name!=""})
+        expr: absent(container_cpu_usage_seconds_total{name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"}) and absent(container_state{name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"})
         for: 1m
         labels:
           severity: critical
@@ -20,7 +20,7 @@ groups:
 
       # Container Exited/Stopped - Fixed to 2 minutes as requested
       - alert: ContainerExited
-        expr: container_state{state="exited",name=~".+",name!=""} == 1
+        expr: container_state{state="exited",name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"} == 1
         for: 2m
         labels:
           severity: critical
@@ -37,7 +37,7 @@ groups:
 
       # Container Not Running (but not exited - likely restarting)
       - alert: ContainerNotRunning
-        expr: container_state{state="running",name=~".+",name!=""} == 0 and container_state{state="exited",name=~".+",name!=""} == 0
+        expr: container_state{state="running",name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"} == 0 and container_state{state="exited",name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"} == 0
         for: 2m
         labels:
           severity: warning
@@ -54,7 +54,7 @@ groups:
 
       # Container Exit Code Non-Zero
       - alert: ContainerExitedWithError
-        expr: container_exit_code{name=~".+",name!=""} != 0
+        expr: container_exit_code{name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"} != 0
         for: 1m
         labels:
           severity: critical
@@ -69,9 +69,9 @@ groups:
           description: "Container {{ $labels.name }} exited with non-zero exit code {{ $value }} on host {{ $labels.hostname }}"
           logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
 
-      # Container Started - Improved detection using container_start_time_seconds
+      # Container Started - Fixed with correct query
       - alert: ContainerStarted
-        expr: increase(container_start_time_seconds{name=~".+",name!=""}[1m]) > 0
+        expr: changes(container_start_time_seconds{name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"}[1m]) > 0
         for: 0s
         labels:
           severity: info
@@ -86,9 +86,9 @@ groups:
           description: "Container {{ $labels.name }} has been started on host {{ $labels.hostname }}"
           logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
 
-      # Container Created - New alert for container creation
+      # Container Created - Fixed with correct query
       - alert: ContainerCreated
-        expr: increase(container_created_time_seconds{name=~".+",name!=""}[1m]) > 0
+        expr: changes(container_start_time_seconds{name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"}[1m]) > 0
         for: 0s
         labels:
           severity: info
@@ -103,9 +103,9 @@ groups:
           description: "New container {{ $labels.name }} has been created on host {{ $labels.hostname }}"
           logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
 
-      # Container Removed - New alert for container removal
+      # Container Removed - Fixed with correct query
       - alert: ContainerRemoved
-        expr: absent(container_cpu_usage_seconds_total{name=~".+",name!=""}) and absent(container_state{name=~".+",name!=""}) and absent(container_created_time_seconds{name=~".+",name!=""})
+        expr: absent(container_cpu_usage_seconds_total{name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"})
         for: 30s
         labels:
           severity: info
@@ -120,9 +120,9 @@ groups:
           description: "Container {{ $labels.name }} has been removed from host {{ $labels.hostname }}"
           logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
 
-      # Container Restarting Frequently
+      # Container Restarting Frequently - Fixed with correct query
       - alert: ContainerRestarting
-        expr: increase(container_start_time_seconds{name=~".+",name!=""}[15m]) > 5
+        expr: changes(container_start_time_seconds{name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"}[15m]) > 5
         for: 5m
         labels:
           severity: warning
@@ -141,7 +141,7 @@ groups:
     rules:
       # Container High Memory Usage
       - alert: ContainerHighMemoryUsage
-        expr: (container_memory_usage_bytes{name=~".+",name!=""} / container_spec_memory_limit_bytes{name=~".+",name!=""} * 100) > 85
+        expr: (container_memory_usage_bytes{name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"} / container_spec_memory_limit_bytes{name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"} * 100) > 85
         for: 5m
         labels:
           severity: warning
@@ -158,7 +158,7 @@ groups:
 
       # Container High CPU Usage
       - alert: ContainerHighCPUUsage
-        expr: rate(container_cpu_usage_seconds_total{name=~".+",name!=""}[5m]) * 100 > 80
+        expr: rate(container_cpu_usage_seconds_total{name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"}[5m]) * 100 > 80
         for: 5m
         labels:
           severity: warning
@@ -175,7 +175,7 @@ groups:
 
       # Container High Disk I/O
       - alert: ContainerHighDiskIO
-        expr: rate(container_fs_reads_total{name=~".+",name!=""}[5m]) + rate(container_fs_writes_total{name=~".+",name!=""}[5m]) > 1000
+        expr: rate(container_fs_reads_total{name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"}[5m]) + rate(container_fs_writes_total{name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"}[5m]) > 1000
         for: 5m
         labels:
           severity: warning
@@ -278,7 +278,7 @@ groups:
     rules:
       # Recording rule for memory leak detection
       - record: container_memory_increase_mb
-        expr: increase(container_memory_usage_bytes{name=~".+",name!=""}[1h]) / 1024 / 1024
+        expr: increase(container_memory_usage_bytes{name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"}[1h]) / 1024 / 1024
 
       # Application Health Check Failed
       - alert: ApplicationHealthCheckFailed
@@ -306,7 +306,7 @@ groups:
 
       # Application Memory Leak
       - alert: ApplicationMemoryLeak
-        expr: container_memory_increase_mb{name=~".+",name!=""} > 50
+        expr: container_memory_increase_mb{name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"} > 50
         for: 10m
         labels:
           severity: warning
