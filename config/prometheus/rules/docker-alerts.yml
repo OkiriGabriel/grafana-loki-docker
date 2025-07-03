@@ -1,44 +1,44 @@
 groups:
   - name: docker-container-lifecycle
     rules:
-      # Container Down - Not seen in metrics for over 1 minute
+      # Container Down - More reliable detection with longer duration
       - alert: ContainerDown
         expr: absent(container_cpu_usage_seconds_total{name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"}) and absent(container_state{name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"})
-        for: 1m
+        for: 3m
         labels:
           severity: critical
           team: infrastructure
           container: "{{ $labels.name }}"
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.name }}"
-          description: "Container has not been seen for over 1m — it may have exited or crashed"
+          description: "Container has not been seen for over 3m — it may have exited or crashed"
           url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
         annotations:
           summary: "🚨 CRITICAL: ContainerDown"
-          description: "Container {{ $labels.name }} has not been seen for over 1m — it may have exited or crashed on host {{ $labels.hostname }}"
+          description: "Container {{ $labels.name }} has not been seen for over 3m — it may have exited or crashed on host {{ $labels.hostname }}"
           logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
 
-      # Container Exited/Stopped - Fixed to 2 minutes as requested
+      # Container Exited/Stopped - More reliable with longer duration
       - alert: ContainerExited
         expr: container_state{state="exited",name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"} == 1
-        for: 2m
+        for: 3m
         labels:
           severity: critical
           team: infrastructure
           container: "{{ $labels.name }}"
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.name }}"
-          description: "Container has exited or stopped for more than 2 minutes"
+          description: "Container has exited or stopped for more than 3 minutes"
           url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
         annotations:
           summary: "🚨 CRITICAL: ContainerExited"
-          description: "Container {{ $labels.name }} has exited/stopped for more than 2 minutes on host {{ $labels.hostname }}"
+          description: "Container {{ $labels.name }} has exited/stopped for more than 3 minutes on host {{ $labels.hostname }}"
           logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
 
-      # Container Not Running (but not exited - likely restarting)
+      # Container Not Running - More reliable detection
       - alert: ContainerNotRunning
         expr: container_state{state="running",name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"} == 0 and container_state{state="exited",name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"} == 0
-        for: 2m
+        for: 3m
         labels:
           severity: warning
           team: infrastructure
@@ -52,10 +52,10 @@ groups:
           description: "Container {{ $labels.name }} is neither running nor exited (likely restarting) on host {{ $labels.hostname }}"
           logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
 
-      # Container Exit Code Non-Zero
+      # Container Exit Code Non-Zero - More reliable
       - alert: ContainerExitedWithError
         expr: container_exit_code{name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"} != 0
-        for: 1m
+        for: 2m
         labels:
           severity: critical
           team: infrastructure
@@ -139,44 +139,44 @@ groups:
 
   - name: docker-container-resources
     rules:
-      # Container High Memory Usage
+      # Container High Memory Usage - More conservative threshold
       - alert: ContainerHighMemoryUsage
-        expr: (container_memory_usage_bytes{name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"} / container_spec_memory_limit_bytes{name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"} * 100) > 85
-        for: 5m
+        expr: (container_memory_usage_bytes{name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"} / container_spec_memory_limit_bytes{name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"} * 100) > 90
+        for: 10m
         labels:
           severity: warning
           team: infrastructure
           container: "{{ $labels.name }}"
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.name }}"
-          description: "Container is using more than 85% of memory limit"
+          description: "Container is using more than 90% of memory limit"
           url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
         annotations:
           summary: "⚠️ WARNING: ContainerHighMemoryUsage"
-          description: "Container {{ $labels.name }} is using more than 85% of memory limit on host {{ $labels.hostname }}"
+          description: "Container {{ $labels.name }} is using more than 90% of memory limit on host {{ $labels.hostname }}"
           logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
 
-      # Container High CPU Usage
+      # Container High CPU Usage - More conservative threshold
       - alert: ContainerHighCPUUsage
-        expr: rate(container_cpu_usage_seconds_total{name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"}[5m]) * 100 > 80
-        for: 5m
+        expr: rate(container_cpu_usage_seconds_total{name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"}[5m]) * 100 > 90
+        for: 10m
         labels:
           severity: warning
           team: infrastructure
           container: "{{ $labels.name }}"
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.name }}"
-          description: "Container is using more than 80% CPU"
+          description: "Container is using more than 90% CPU"
           url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
         annotations:
           summary: "⚠️ WARNING: ContainerHighCPUUsage"
-          description: "Container {{ $labels.name }} is using more than 80% CPU on host {{ $labels.hostname }}"
+          description: "Container {{ $labels.name }} is using more than 90% CPU on host {{ $labels.hostname }}"
           logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
 
-      # Container High Disk I/O
+      # Container High Disk I/O - More conservative threshold
       - alert: ContainerHighDiskIO
-        expr: rate(container_fs_reads_total{name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"}[5m]) + rate(container_fs_writes_total{name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"}[5m]) > 1000
-        for: 5m
+        expr: rate(container_fs_reads_total{name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"}[5m]) + rate(container_fs_writes_total{name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"}[5m]) > 5000
+        for: 10m
         labels:
           severity: warning
           team: infrastructure
@@ -304,10 +304,10 @@ groups:
           summary: "High application response time for {{ $labels.service }}"
           description: "95th percentile response time is {{ $value }} seconds"
 
-      # Application Memory Leak
+      # Application Memory Leak - More conservative threshold
       - alert: ApplicationMemoryLeak
-        expr: container_memory_increase_mb{name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"} > 50
-        for: 10m
+        expr: container_memory_increase_mb{name=~".+",name!="",name!~"^(cadvisor|prometheus|alertmanager|grafana|loki|promtail|node-exporter|blackbox-exporter)$"} > 100
+        for: 15m
         labels:
           severity: warning
           team: infrastructure
