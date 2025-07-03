@@ -6,8 +6,6 @@ global:
 
 rule_files:
   - "rules/*.yml"
-  - "rules/docker-alerts.yml"
-  - "rules/log-alerts.yml"
 
 alerting:
   alertmanagers:
@@ -218,4 +216,7 @@ scrape_configs:
   #       target_label: instance
   #       regex: '(.+):.+'
   #       replacement: '${1}'
+  #       action: replace
+  #     - source_labels: [instance]
+  #       target_label: hostname
   #       action: replace 
