@@ -104,19 +104,17 @@ services:
     networks:
       - monitoring
 
-  # Cadvisor - Container Metrics
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.47.2  # Stick to a stable version
-    container_name: cadvisor
+  # Docker Exporter - Container Metrics
+  docker-exporter:
+    image: stefanprodan/dockerd-exporter:latest
+    container_name: docker-exporter
     restart: unless-stopped
     ports:
-      - "8080:8080"
-    privileged: true
+      - "9323:9323"
     volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:ro
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command:
+      - '--web.listen-address=:9323'
     networks:
       - monitoring
 

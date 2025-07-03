@@ -1,0 +1,19 @@
+# Docker Exporter Configuration
+# This file contains the scrape configuration for Docker Exporter
+
+# Docker Exporter - Container metrics
+- job_name: 'docker-exporter'
+  static_configs:
+    - targets: ['docker-exporter:9323']
+  scrape_interval: 15s
+  relabel_configs:
+    # Set proper hostname for container metrics
+    - source_labels: [__address__]
+      target_label: instance
+      regex: 'docker-exporter:9323'
+      replacement: '${HOSTNAME}'
+      action: replace
+    # Set hostname label for better display
+    - source_labels: [instance]
+      target_label: hostname
+      action: replace 
