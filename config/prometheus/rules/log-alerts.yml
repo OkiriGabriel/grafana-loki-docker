@@ -40,11 +40,11 @@ groups:
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.job }}"
           description: "Critical HTTP errors detected in container logs"
-          url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
+          url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
         annotations:
           summary: "🚨 CRITICAL: ContainerLogCriticalHTTPErrors"
           description: "Container {{ $labels.container }} is logging critical HTTP errors (401, 403, 404, 500, 501, 502, 503) on host {{ $labels.hostname }}"
-          logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
+          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
 
       # Alert for general errors
       - alert: ContainerLogGeneralErrors
@@ -57,11 +57,11 @@ groups:
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.job }}"
           description: "General errors detected in container logs"
-          url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
+          url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
         annotations:
           summary: "⚠️ WARNING: ContainerLogGeneralErrors"
           description: "Container {{ $labels.container }} is logging general errors (error, failed, exception, timeout, connection refused) on host {{ $labels.hostname }}"
-          logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
+          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
 
       # Alert for authentication errors
       - alert: ContainerLogAuthErrors
@@ -74,11 +74,11 @@ groups:
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.job }}"
           description: "Authentication errors detected in container logs"
-          url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
+          url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
         annotations:
           summary: "🚨 CRITICAL: ContainerLogAuthErrors"
           description: "Container {{ $labels.container }} is logging authentication errors (401, 403, unauthorized, forbidden) on host {{ $labels.hostname }}"
-          logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
+          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
 
       # Alert for server errors
       - alert: ContainerLogServerErrors
@@ -91,11 +91,11 @@ groups:
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.job }}"
           description: "Server errors detected in container logs"
-          url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
+          url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
         annotations:
           summary: "🚨 CRITICAL: ContainerLogServerErrors"
           description: "Container {{ $labels.container }} is logging server errors (500, 502, 503, 504, 505, internal server error) on host {{ $labels.hostname }}"
-          logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
+          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
 
       # Alert for client errors
       - alert: ContainerLogClientErrors
@@ -108,11 +108,11 @@ groups:
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.job }}"
           description: "Client errors detected in container logs"
-          url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
+          url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
         annotations:
           summary: "⚠️ WARNING: ContainerLogClientErrors"
           description: "Container {{ $labels.container }} is logging client errors (4xx status codes) on host {{ $labels.hostname }}"
-          logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
+          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
 
       # Alert for Docker-specific errors
       - alert: ContainerLogDockerErrors
@@ -125,11 +125,11 @@ groups:
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.job }}"
           description: "Docker-specific errors detected in container logs"
-          url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
+          url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
         annotations:
           summary: "🚨 CRITICAL: ContainerLogDockerErrors"
           description: "Container {{ $labels.container }} is logging Docker-specific errors (container failures, image pull failures, permission issues, network issues) on host {{ $labels.hostname }}"
-          logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
+          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
 
       # Alert for application startup errors
       - alert: ContainerLogStartupErrors
@@ -142,11 +142,11 @@ groups:
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.job }}"
           description: "Application startup errors detected in container logs"
-          url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
+          url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
         annotations:
           summary: "🚨 CRITICAL: ContainerLogStartupErrors"
           description: "Container {{ $labels.container }} is logging application startup errors on host {{ $labels.hostname }}"
-          logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
+          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
 
       # Alert for high error rate
       - alert: ContainerLogHighErrorRate
@@ -159,8 +159,8 @@ groups:
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.job }}"
           description: "High error rate detected in container logs"
-          url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
+          url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
         annotations:
           summary: "🚨 CRITICAL: ContainerLogHighErrorRate"
           description: "Container {{ $labels.container }} is logging errors at a high rate on host {{ $labels.hostname }}"
-          logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]" 
+          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]" 
