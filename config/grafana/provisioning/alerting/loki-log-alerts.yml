@@ -1,111 +1,111 @@
-apiVersion: 1
+# apiVersion: 1
 
-groups:
-  - name: Loki Log Alerts
-    folder: Loki
-    interval: 1m
-    rules:
-      # Alert for critical HTTP errors in logs
-      - uid: critical-http-errors
-        title: Critical HTTP Errors
-        condition: A
-        for: 2m
-        labels:
-          severity: critical
-          team: infrastructure
-        annotations:
-          summary: "🚨 CRITICAL: Critical HTTP errors detected in logs"
-          description: "Critical HTTP errors (401, 403, 404, 500, 501, 502, 503) detected in container logs"
-          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{job=\\\"docker\\\"} |= \\\"500\\\" |= \\\"501\\\" |= \\\"502\\\" |= \\\"503\\\" |= \\\"504\\\" |= \\\"505\\\" |= \\\"401\\\" |= \\\"403\\\" |= \\\"404\\\"\"}]"
-        data:
-          - refId: A
-            datasourceUid: loki
-            model:
-              expr: '{job="docker"} |= "500" |= "501" |= "502" |= "503" |= "504" |= "505" |= "401" |= "403" |= "404"'
-              instant: true
-              range: false
-              maxLines: 1000
+# groups:
+#   - name: Loki Log Alerts
+#     folder: Loki
+#     interval: 1m
+#     rules:
+#       # Alert for critical HTTP errors in logs
+#       - uid: critical-http-errors
+#         title: Critical HTTP Errors
+#         condition: A
+#         for: 2m
+#         labels:
+#           severity: critical
+#           team: infrastructure
+#         annotations:
+#           summary: "🚨 CRITICAL: Critical HTTP errors detected in logs"
+#           description: "Critical HTTP errors (401, 403, 404, 500, 501, 502, 503) detected in container logs"
+#           logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{job=\\\"docker\\\"} |= \\\"500\\\" |= \\\"501\\\" |= \\\"502\\\" |= \\\"503\\\" |= \\\"504\\\" |= \\\"505\\\" |= \\\"401\\\" |= \\\"403\\\" |= \\\"404\\\"\"}]"
+#         data:
+#           - refId: A
+#             datasourceUid: loki
+#             model:
+#               expr: '{job="docker"} |= "500" |= "501" |= "502" |= "503" |= "504" |= "505" |= "401" |= "403" |= "404"'
+#               instant: true
+#               range: false
+#               maxLines: 1000
 
-      # Alert for general errors in logs
-      - uid: general-errors
-        title: General Errors
-        condition: A
-        for: 3m
-        labels:
-          severity: warning
-          team: infrastructure
-        annotations:
-          summary: "⚠️ WARNING: General errors detected in logs"
-          description: "General errors (error, failed, exception, timeout, connection refused) detected in container logs"
-          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{job=\\\"docker\\\"} |= \\\"error\\\" |= \\\"failed\\\" |= \\\"exception\\\" |= \\\"timeout\\\" |= \\\"connection refused\\\"\"}]"
-        data:
-          - refId: A
-            datasourceUid: loki
-            model:
-              expr: '{job="docker"} |= "error" |= "failed" |= "exception" |= "timeout" |= "connection refused"'
-              instant: true
-              range: false
-              maxLines: 1000
+#       # Alert for general errors in logs
+#       - uid: general-errors
+#         title: General Errors
+#         condition: A
+#         for: 3m
+#         labels:
+#           severity: warning
+#           team: infrastructure
+#         annotations:
+#           summary: "⚠️ WARNING: General errors detected in logs"
+#           description: "General errors (error, failed, exception, timeout, connection refused) detected in container logs"
+#           logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{job=\\\"docker\\\"} |= \\\"error\\\" |= \\\"failed\\\" |= \\\"exception\\\" |= \\\"timeout\\\" |= \\\"connection refused\\\"\"}]"
+#         data:
+#           - refId: A
+#             datasourceUid: loki
+#             model:
+#               expr: '{job="docker"} |= "error" |= "failed" |= "exception" |= "timeout" |= "connection refused"'
+#               instant: true
+#               range: false
+#               maxLines: 1000
 
-      # Alert for authentication errors
-      - uid: auth-errors
-        title: Authentication Errors
-        condition: A
-        for: 2m
-        labels:
-          severity: critical
-          team: infrastructure
-        annotations:
-          summary: "🚨 CRITICAL: Authentication errors detected in logs"
-          description: "Authentication errors (401, 403, unauthorized, forbidden) detected in container logs"
-          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{job=\\\"docker\\\"} |= \\\"401\\\" |= \\\"403\\\" |= \\\"unauthorized\\\" |= \\\"forbidden\\\"\"}]"
-        data:
-          - refId: A
-            datasourceUid: loki
-            model:
-              expr: '{job="docker"} |= "401" |= "403" |= "unauthorized" |= "forbidden"'
-              instant: true
-              range: false
-              maxLines: 1000
+#       # Alert for authentication errors
+#       - uid: auth-errors
+#         title: Authentication Errors
+#         condition: A
+#         for: 2m
+#         labels:
+#           severity: critical
+#           team: infrastructure
+#         annotations:
+#           summary: "🚨 CRITICAL: Authentication errors detected in logs"
+#           description: "Authentication errors (401, 403, unauthorized, forbidden) detected in container logs"
+#           logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{job=\\\"docker\\\"} |= \\\"401\\\" |= \\\"403\\\" |= \\\"unauthorized\\\" |= \\\"forbidden\\\"\"}]"
+#         data:
+#           - refId: A
+#             datasourceUid: loki
+#             model:
+#               expr: '{job="docker"} |= "401" |= "403" |= "unauthorized" |= "forbidden"'
+#               instant: true
+#               range: false
+#               maxLines: 1000
 
-      # Alert for server errors
-      - uid: server-errors
-        title: Server Errors
-        condition: A
-        for: 2m
-        labels:
-          severity: critical
-          team: infrastructure
-        annotations:
-          summary: "🚨 CRITICAL: Server errors detected in logs"
-          description: "Server errors (500, 502, 503, 504, 505, internal server error) detected in container logs"
-          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{job=\\\"docker\\\"} |= \\\"500\\\" |= \\\"502\\\" |= \\\"503\\\" |= \\\"504\\\" |= \\\"505\\\" |= \\\"internal server error\\\"\"}]"
-        data:
-          - refId: A
-            datasourceUid: loki
-            model:
-              expr: '{job="docker"} |= "500" |= "502" |= "503" |= "504" |= "505" |= "internal server error"'
-              instant: true
-              range: false
-              maxLines: 1000
+#       # Alert for server errors
+#       - uid: server-errors
+#         title: Server Errors
+#         condition: A
+#         for: 2m
+#         labels:
+#           severity: critical
+#           team: infrastructure
+#         annotations:
+#           summary: "🚨 CRITICAL: Server errors detected in logs"
+#           description: "Server errors (500, 502, 503, 504, 505, internal server error) detected in container logs"
+#           logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{job=\\\"docker\\\"} |= \\\"500\\\" |= \\\"502\\\" |= \\\"503\\\" |= \\\"504\\\" |= \\\"505\\\" |= \\\"internal server error\\\"\"}]"
+#         data:
+#           - refId: A
+#             datasourceUid: loki
+#             model:
+#               expr: '{job="docker"} |= "500" |= "502" |= "503" |= "504" |= "505" |= "internal server error"'
+#               instant: true
+#               range: false
+#               maxLines: 1000
 
-      # Alert for Docker-specific errors
-      - uid: docker-errors
-        title: Docker Errors
-        condition: A
-        for: 2m
-        labels:
-          severity: critical
-          team: infrastructure
-        annotations:
-          summary: "🚨 CRITICAL: Docker errors detected in logs"
-          description: "Docker-specific errors (container, image, permission, network, volume, docker) detected in container logs"
-          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{job=\\\"docker\\\"} |= \\\"container\\\" |= \\\"image\\\" |= \\\"permission\\\" |= \\\"network\\\" |= \\\"volume\\\" |= \\\"docker\\\"\"}]"
-        data:
-          - refId: A
-            datasourceUid: loki
-            model:
-              expr: '{job="docker"} |= "container" |= "image" |= "permission" |= "network" |= "volume" |= "docker"'
-              instant: true
-              range: false
-              maxLines: 1000 
+#       # Alert for Docker-specific errors
+#       - uid: docker-errors
+#         title: Docker Errors
+#         condition: A
+#         for: 2m
+#         labels:
+#           severity: critical
+#           team: infrastructure
+#         annotations:
+#           summary: "🚨 CRITICAL: Docker errors detected in logs"
+#           description: "Docker-specific errors (container, image, permission, network, volume, docker) detected in container logs"
+#           logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{job=\\\"docker\\\"} |= \\\"container\\\" |= \\\"image\\\" |= \\\"permission\\\" |= \\\"network\\\" |= \\\"volume\\\" |= \\\"docker\\\"\"}]"
+#         data:
+#           - refId: A
+#             datasourceUid: loki
+#             model:
+#               expr: '{job="docker"} |= "container" |= "image" |= "permission" |= "network" |= "volume" |= "docker"'
+#               instant: true
+#               range: false
+#               maxLines: 1000 
