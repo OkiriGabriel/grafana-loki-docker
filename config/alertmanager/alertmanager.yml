@@ -18,7 +18,7 @@ route:
       repeat_interval: 5m
 
 receivers:
-  - name: 'slack-notifications'
+  - name: 'slack-notifications'i hae done 
     slack_configs:
       - channel: '#logs'
         title: '🔥 {{ .CommonLabels.alertname }}'
