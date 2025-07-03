@@ -143,36 +143,36 @@ scrape_configs:
       - targets: ['grafana:3000']
 
   # EC2 Instances (replace with your actual EC2 private IPs)
-  - job_name: 'ec2-instances'
-    static_configs:
-      - targets:
-        - '10.0.1.10:9100'  # Replace with your EC2 private IPs
-        - '10.0.1.11:9100'
-        - '10.0.1.12:9100'
-    scrape_interval: 30s
+  # - job_name: 'ec2-instances'
+  #   static_configs:
+  #     - targets:
+  #       - '10.0.1.10:9100'  # Replace with your EC2 private IPs
+  #       - '10.0.1.11:9100'
+  #       - '10.0.1.12:9100'
+  #   scrape_interval: 30s
 
   # DigitalOcean Droplets (replace with your actual droplet IPs)
-  - job_name: 'digitalocean-droplets'
-    static_configs:
-      - targets:
-        - '192.168.1.10:9100'  # Replace with your droplet IPs
-        - '192.168.1.11:9100'
-        - '192.168.1.12:9100'
-    scrape_interval: 30s
+  # - job_name: 'digitalocean-droplets'
+  #   static_configs:
+  #     - targets:
+  #       - '192.168.1.10:9100'  # Replace with your droplet IPs
+  #       - '192.168.1.11:9100'
+  #       - '192.168.1.12:9100'
+  #   scrape_interval: 30s
 
   # Application Services (replace with your actual service endpoints)
-  - job_name: 'application-services'
-    static_configs:
-      - targets:
-        - 'app-server-1:8080'  # Replace with your app endpoints
-        - 'app-server-2:8080'
-        - 'app-server-3:8080'
-    metrics_path: /metrics
-    scrape_interval: 30s
-    relabel_configs:
-      # Set proper hostname for application services
-      - source_labels: [__address__]
-        target_label: instance
-        regex: '(.+):.+'
-        replacement: '${1}'
-        action: replace 
+  # - job_name: 'application-services'
+  #   static_configs:
+  #     - targets:
+  #       - 'app-server-1:8080'  # Replace with your app endpoints
+  #       - 'app-server-2:8080'
+  #       - 'app-server-3:8080'
+  #   metrics_path: /metrics
+  #   scrape_interval: 30s
+  #   relabel_configs:
+  #     # Set proper hostname for application services
+  #     - source_labels: [__address__]
+  #       target_label: instance
+  #       regex: '(.+):.+'
+  #       replacement: '${1}'
+  #       action: replace 
