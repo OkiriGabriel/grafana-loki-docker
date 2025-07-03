@@ -104,15 +104,19 @@ services:
     networks:
       - monitoring
 
-  # Docker Exporter - Container Metrics
-  docker-exporter:
-    image: stefanprodan/dockerd-exporter:latest
-    container_name: docker-exporter
+  # Cadvisor - Container Metrics
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.2
+    container_name: cadvisor
     restart: unless-stopped
     ports:
-      - "9323:9323"
+      - "8080:8080"
+    privileged: true
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
     networks:
       - monitoring
 

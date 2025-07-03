@@ -35,16 +35,15 @@ scrape_configs:
         target_label: hostname
         action: replace
 
-  # Docker Exporter - Container metrics
-  - job_name: 'docker-exporter'
+  # Cadvisor - Container metrics
+  - job_name: 'cadvisor'
     static_configs:
-      - targets: ['docker-exporter:9323']
-    scrape_interval: 15s
+      - targets: ['cadvisor:8080']
     relabel_configs:
       # Set proper hostname for container metrics
       - source_labels: [__address__]
         target_label: instance
-        regex: 'docker-exporter:9323'
+        regex: 'cadvisor:8080'
         replacement: '${HOSTNAME}'
         action: replace
       # Set hostname label for better display

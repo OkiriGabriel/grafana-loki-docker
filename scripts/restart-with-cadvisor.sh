@@ -1,15 +1,15 @@
 #!/bin/bash
 
-# Restart Monitoring Stack with Fixed cAdvisor
-# This script restarts the monitoring stack with the corrected cAdvisor configuration
+# Restart Monitoring Stack with cAdvisor
+# This script restarts the monitoring stack with cAdvisor for container monitoring
 
-echo "🔄 Restarting monitoring stack with fixed cAdvisor configuration..."
+echo "🔄 Restarting monitoring stack with cAdvisor..."
 
 # Stop the current monitoring stack
 echo "⏹️ Stopping current monitoring stack..."
 docker-compose down
 
-# Remove the problematic docker-exporter container if it exists
+# Remove the docker-exporter container if it exists
 echo "🗑️ Removing docker-exporter container..."
 docker rm -f docker-exporter 2>/dev/null || true
 
@@ -41,7 +41,14 @@ sleep 5
 curl -s http://localhost:9090/api/v1/targets | jq '.data.activeTargets[] | select(.labels.job == "cadvisor") | {job: .labels.job, instance: .labels.instance, health: .health}'
 
 echo ""
-echo "✅ Monitoring stack restarted successfully!"
+echo "✅ Monitoring stack restarted successfully with cAdvisor!"
+echo ""
+echo "📊 cAdvisor Metrics Available:"
+echo "   - Container info: container_cpu_usage_seconds_total"
+echo "   - Container state: container_state"
+echo "   - Container memory: container_memory_usage_bytes"
+echo "   - Container CPU: container_cpu_usage_seconds_total"
+echo "   - Container network: container_network_receive_bytes_total"
 echo ""
 echo "🔗 Access your monitoring stack:"
 echo "   - Grafana: http://localhost:3000 (admin/admin123)"
@@ -49,4 +56,9 @@ echo "   - Prometheus: http://localhost:9090"
 echo "   - Alertmanager: http://localhost:9093"
 echo "   - cAdvisor: http://localhost:8080"
 echo ""
-echo "📊 Your alerts should now show correct hostnames instead of 'cadvisor:8080'" 
+echo "📊 Your alerts should now show correct hostnames instead of 'cadvisor:8080'"
+echo ""
+echo "📝 Next steps:"
+echo "   1. Test your alerts with cAdvisor metrics"
+echo "   2. Verify that alerts show correct hostnames"
+echo "   3. Check that all container monitoring is working" 
