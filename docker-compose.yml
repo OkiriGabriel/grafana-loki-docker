@@ -113,8 +113,6 @@ services:
       - "9323:9323"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-    command:
-      - '--web.listen-address=:9323'
     networks:
       - monitoring
 
