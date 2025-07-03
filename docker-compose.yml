@@ -18,6 +18,9 @@ services:
       - ./config/grafana/dashboards:/etc/grafana/dashboards
     networks:
       - monitoring
+    depends_on:
+      - loki
+      - prometheus
 
   # Loki - Log Aggregation
   loki:
@@ -42,7 +45,8 @@ services:
     ports:
       - "9080:9080"
     environment:
-      - HOSTNAME=${HOSTNAME:-$(hostname)}
+      - HOSTNAME=monitoring-server
+    user: root  # Required for Docker socket access
     command:
       - '-config.file=/etc/promtail/config.yml'
     volumes:
@@ -52,6 +56,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - monitoring
+    depends_on:
+      - loki
 
   # Prometheus - Metrics Collection
   prometheus:
@@ -61,7 +67,7 @@ services:
     ports:
       - "9090:9090"
     environment:
-      - HOSTNAME=${HOSTNAME:-$(hostname)}
+      - HOSTNAME=monitoring-server
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
@@ -106,7 +112,7 @@ services:
     networks:
       - monitoring
 
-  # Node Exporter - System Metrics (for the monitoring server)
+  # Node Exporter - System Metrics
   node-exporter:
     image: prom/node-exporter:latest
     container_name: node-exporter
@@ -136,9 +142,9 @@ services:
       - /var/run:/var/run:ro
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
     networks:
       - monitoring
-
 
 volumes:
   grafana-storage:
@@ -148,4 +154,4 @@ volumes:
 
 networks:
   monitoring:
-    driver: bridge 
+    driver: bridge
