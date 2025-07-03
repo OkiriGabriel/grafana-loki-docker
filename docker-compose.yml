@@ -34,6 +34,25 @@ services:
     networks:
       - monitoring
 
+  # Promtail - Log Collection Agent
+  promtail:
+    image: grafana/promtail:latest
+    container_name: promtail
+    restart: unless-stopped
+    ports:
+      - "9080:9080"
+    environment:
+      - HOSTNAME=${HOSTNAME:-$(hostname)}
+    command:
+      - '-config.file=/etc/promtail/config.yml'
+    volumes:
+      - ./config/promtail/promtail-config.yml:/etc/promtail/config.yml
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/log:/var/log:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - monitoring
+
   # Prometheus - Metrics Collection
   prometheus:
     image: prom/prometheus:latest

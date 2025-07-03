@@ -18,21 +18,21 @@ groups:
           description: "Container {{ $labels.name }} has not been seen for over 1m — it may have exited or crashed on host {{ $labels.hostname }}"
           logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
 
-      # Container Exited/Stopped
+      # Container Exited/Stopped - Fixed to 2 minutes as requested
       - alert: ContainerExited
         expr: container_state{state="exited",name=~".+",name!=""} == 1
-        for: 30s
+        for: 2m
         labels:
           severity: critical
           team: infrastructure
           container: "{{ $labels.name }}"
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.name }}"
-          description: "Container has exited or stopped"
+          description: "Container has exited or stopped for more than 2 minutes"
           url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
         annotations:
           summary: "🚨 CRITICAL: ContainerExited"
-          description: "Container {{ $labels.name }} has exited/stopped on host {{ $labels.hostname }}"
+          description: "Container {{ $labels.name }} has exited/stopped for more than 2 minutes on host {{ $labels.hostname }}"
           logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
 
       # Container Not Running (but not exited - likely restarting)
@@ -69,7 +69,7 @@ groups:
           description: "Container {{ $labels.name }} exited with non-zero exit code {{ $value }} on host {{ $labels.hostname }}"
           logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
 
-      # Container Started (Optional - for monitoring container lifecycle)
+      # Container Started - Improved detection using container_start_time_seconds
       - alert: ContainerStarted
         expr: increase(container_start_time_seconds{name=~".+",name!=""}[1m]) > 0
         for: 0s
@@ -86,9 +86,9 @@ groups:
           description: "Container {{ $labels.name }} has been started on host {{ $labels.hostname }}"
           logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
 
-      # Container Created (Optional - for monitoring new container creation)
+      # Container Created - New alert for container creation
       - alert: ContainerCreated
-        expr: increase(container_start_time_seconds{name=~".+",name!=""}[1m]) > 0
+        expr: increase(container_created_time_seconds{name=~".+",name!=""}[1m]) > 0
         for: 0s
         labels:
           severity: info
@@ -101,6 +101,23 @@ groups:
         annotations:
           summary: "ℹ️ INFO: ContainerCreated"
           description: "New container {{ $labels.name }} has been created on host {{ $labels.hostname }}"
+          logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
+
+      # Container Removed - New alert for container removal
+      - alert: ContainerRemoved
+        expr: absent(container_cpu_usage_seconds_total{name=~".+",name!=""}) and absent(container_state{name=~".+",name!=""}) and absent(container_created_time_seconds{name=~".+",name!=""})
+        for: 30s
+        labels:
+          severity: info
+          team: infrastructure
+          container: "{{ $labels.name }}"
+          host: "{{ $labels.hostname }}"
+          application: "{{ $labels.name }}"
+          description: "Container has been removed"
+          url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
+        annotations:
+          summary: "ℹ️ INFO: ContainerRemoved"
+          description: "Container {{ $labels.name }} has been removed from host {{ $labels.hostname }}"
           logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
 
       # Container Restarting Frequently

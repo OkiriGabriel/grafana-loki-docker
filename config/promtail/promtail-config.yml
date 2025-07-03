@@ -9,7 +9,7 @@ clients:
   - url: http://loki:3100/loki/api/v1/push
 
 scrape_configs:
-  # Docker container logs
+  # Docker container logs - Enhanced configuration
   - job_name: docker
     docker_sd_configs:
       - host: unix:///var/run/docker.sock
@@ -17,7 +17,10 @@ scrape_configs:
         filters:
           - name: name
             values: ['.*']
+        # Don't filter out any containers initially
+        include_containers: true
     relabel_configs:
+      # Keep all containers by default
       - source_labels: ['__meta_docker_container_name']
         regex: '/(.*)'
         target_label: 'container'
@@ -40,6 +43,15 @@ scrape_configs:
       # Add hostname label for multi-server monitoring
       - target_label: 'hostname'
         replacement: '${HOSTNAME}'
+      # Add job label if not present
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/(.*)'
+        target_label: 'job'
+        replacement: 'docker'
+      # Keep all containers (don't drop any)
+      - source_labels: ['__meta_docker_container_name']
+        regex: '.+'
+        action: keep
     pipeline_stages:
       # Try to parse JSON logs first
       - json:

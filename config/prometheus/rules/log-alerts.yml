@@ -21,6 +21,14 @@ groups:
       - record: log_client_errors_total
         expr: sum by (container, hostname, job) (increase(log_entries_total{message=~".*400.*|.*404.*|.*405.*|.*406.*|.*408.*|.*409.*|.*410.*|.*411.*|.*412.*|.*413.*|.*414.*|.*415.*|.*416.*|.*417.*|.*418.*|.*422.*|.*423.*|.*424.*|.*425.*|.*426.*|.*428.*|.*429.*|.*431.*|.*451.*"}[5m]))
 
+      # Recording rule for Docker-specific errors
+      - record: log_docker_errors_total
+        expr: sum by (container, hostname, job) (increase(log_entries_total{message=~".*docker.*error.*|.*DOCKER.*ERROR.*|.*container.*failed.*|.*CONTAINER.*FAILED.*|.*image.*pull.*failed.*|.*IMAGE.*PULL.*FAILED.*|.*no.*such.*container.*|.*NO.*SUCH.*CONTAINER.*|.*permission.*denied.*|.*PERMISSION.*DENIED.*|.*port.*already.*in.*use.*|.*PORT.*ALREADY.*IN.*USE.*|.*bind.*address.*already.*in.*use.*|.*BIND.*ADDRESS.*ALREADY.*IN.*USE.*|.*network.*not.*found.*|.*NETWORK.*NOT.*FOUND.*|.*volume.*not.*found.*|.*VOLUME.*NOT.*FOUND.*|.*exec.*failed.*|.*EXEC.*FAILED.*|.*exit.*code.*[1-9][0-9]*|.*EXIT.*CODE.*[1-9][0-9]*"}[5m]))
+
+      # Recording rule for application startup errors
+      - record: log_startup_errors_total
+        expr: sum by (container, hostname, job) (increase(log_entries_total{message=~".*failed.*to.*start.*|.*FAILED.*TO.*START.*|.*startup.*failed.*|.*STARTUP.*FAILED.*|.*initialization.*failed.*|.*INITIALIZATION.*FAILED.*|.*bootstrap.*failed.*|.*BOOTSTRAP.*FAILED.*|.*application.*failed.*to.*start.*|.*APPLICATION.*FAILED.*TO.*START.*"}[5m]))
+
       # Alert for critical HTTP errors
       - alert: ContainerLogCriticalHTTPErrors
         expr: log_http_errors_total > 5
@@ -104,6 +112,40 @@ groups:
         annotations:
           summary: "⚠️ WARNING: ContainerLogClientErrors"
           description: "Container {{ $labels.container }} is logging client errors (4xx status codes) on host {{ $labels.hostname }}"
+          logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
+
+      # Alert for Docker-specific errors
+      - alert: ContainerLogDockerErrors
+        expr: log_docker_errors_total > 2
+        for: 2m
+        labels:
+          severity: critical
+          team: infrastructure
+          container: "{{ $labels.container }}"
+          host: "{{ $labels.hostname }}"
+          application: "{{ $labels.job }}"
+          description: "Docker-specific errors detected in container logs"
+          url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
+        annotations:
+          summary: "🚨 CRITICAL: ContainerLogDockerErrors"
+          description: "Container {{ $labels.container }} is logging Docker-specific errors (container failures, image pull failures, permission issues, network issues) on host {{ $labels.hostname }}"
+          logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
+
+      # Alert for application startup errors
+      - alert: ContainerLogStartupErrors
+        expr: log_startup_errors_total > 1
+        for: 1m
+        labels:
+          severity: critical
+          team: infrastructure
+          container: "{{ $labels.container }}"
+          host: "{{ $labels.hostname }}"
+          application: "{{ $labels.job }}"
+          description: "Application startup errors detected in container logs"
+          url: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
+        annotations:
+          summary: "🚨 CRITICAL: ContainerLogStartupErrors"
+          description: "Container {{ $labels.container }} is logging application startup errors on host {{ $labels.hostname }}"
           logs: "https://grafana.example.com/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.container }}\\\"}\"}]"
 
       # Alert for high error rate
