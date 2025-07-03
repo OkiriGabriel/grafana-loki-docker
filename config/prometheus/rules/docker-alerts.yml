@@ -12,11 +12,11 @@ groups:
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.name }}"
           description: "Container has not been seen for over 1m — it may have exited or crashed"
-          url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
+          url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
         annotations:
           summary: "🚨 CRITICAL: ContainerDown"
           description: "Container {{ $labels.name }} has not been seen for over 1m — it may have exited or crashed on host {{ $labels.hostname }}"
-          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
+          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
 
       # Container Exited/Stopped - Fixed to 2 minutes as requested
       - alert: ContainerExited
@@ -29,11 +29,11 @@ groups:
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.name }}"
           description: "Container has exited or stopped for more than 2 minutes"
-          url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
+          url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
         annotations:
           summary: "🚨 CRITICAL: ContainerExited"
           description: "Container {{ $labels.name }} has exited/stopped for more than 2 minutes on host {{ $labels.hostname }}"
-          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
+          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
 
       # Container Not Running (but not exited - likely restarting)
       - alert: ContainerNotRunning
@@ -46,11 +46,11 @@ groups:
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.name }}"
           description: "Container is not running and not exited - likely restarting"
-          url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
+          url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
         annotations:
           summary: "⚠️ WARNING: ContainerNotRunning"
           description: "Container {{ $labels.name }} is neither running nor exited (likely restarting) on host {{ $labels.hostname }}"
-          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
+          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
 
       # Container Exit Code Non-Zero
       - alert: ContainerExitedWithError
@@ -63,11 +63,11 @@ groups:
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.name }}"
           description: "Container exited with non-zero exit code"
-          url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
+          url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
         annotations:
           summary: "🚨 CRITICAL: ContainerExitedWithError"
           description: "Container {{ $labels.name }} exited with non-zero exit code {{ $value }} on host {{ $labels.hostname }}"
-          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
+          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
 
       # Container Started - Fixed with correct query
       - alert: ContainerStarted
@@ -80,11 +80,11 @@ groups:
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.name }}"
           description: "Container has been started"
-          url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
+          url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
         annotations:
           summary: "ℹ️ INFO: ContainerStarted"
           description: "Container {{ $labels.name }} has been started on host {{ $labels.hostname }}"
-          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
+          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
 
       # Container Created - Fixed with correct query
       - alert: ContainerCreated
@@ -97,11 +97,11 @@ groups:
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.name }}"
           description: "New container has been created"
-          url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
+          url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
         annotations:
           summary: "ℹ️ INFO: ContainerCreated"
           description: "New container {{ $labels.name }} has been created on host {{ $labels.hostname }}"
-          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
+          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
 
       # Container Removed - Fixed with correct query
       - alert: ContainerRemoved
@@ -114,11 +114,11 @@ groups:
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.name }}"
           description: "Container has been removed"
-          url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
+          url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
         annotations:
           summary: "ℹ️ INFO: ContainerRemoved"
           description: "Container {{ $labels.name }} has been removed from host {{ $labels.hostname }}"
-          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
+          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
 
       # Container Restarting Frequently - Fixed with correct query
       - alert: ContainerRestarting
@@ -131,11 +131,11 @@ groups:
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.name }}"
           description: "Container is restarting frequently"
-          url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
+          url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
         annotations:
           summary: "⚠️ WARNING: ContainerRestarting"
           description: "Container {{ $labels.name }} has restarted more than 5 times in the last 15 minutes on host {{ $labels.hostname }}"
-          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
+          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
 
   - name: docker-container-resources
     rules:
@@ -150,11 +150,11 @@ groups:
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.name }}"
           description: "Container is using more than 85% of memory limit"
-          url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
+          url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
         annotations:
           summary: "⚠️ WARNING: ContainerHighMemoryUsage"
           description: "Container {{ $labels.name }} is using more than 85% of memory limit on host {{ $labels.hostname }}"
-          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
+          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
 
       # Container High CPU Usage
       - alert: ContainerHighCPUUsage
@@ -167,11 +167,11 @@ groups:
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.name }}"
           description: "Container is using more than 80% CPU"
-          url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
+          url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
         annotations:
           summary: "⚠️ WARNING: ContainerHighCPUUsage"
           description: "Container {{ $labels.name }} is using more than 80% CPU on host {{ $labels.hostname }}"
-          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
+          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
 
       # Container High Disk I/O
       - alert: ContainerHighDiskIO
@@ -184,11 +184,11 @@ groups:
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.name }}"
           description: "Container has high disk I/O activity"
-          url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
+          url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
         annotations:
           summary: "⚠️ WARNING: ContainerHighDiskIO"
           description: "Container {{ $labels.name }} has high disk I/O activity on host {{ $labels.hostname }}"
-          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
+          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
 
   - name: docker-service-health
     rules:
@@ -315,11 +315,11 @@ groups:
           host: "{{ $labels.hostname }}"
           application: "{{ $labels.name }}"
           description: "Container memory usage increased significantly in the last hour"
-          url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
+          url: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
         annotations:
           summary: "⚠️ WARNING: ApplicationMemoryLeak"
           description: "Container {{ $labels.name }} memory usage increased by {{ $value | printf \"%.1f\" }} MB in the last hour on host {{ $labels.hostname }}"
-          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\"}\"}]"
+          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{container=\\\"{{ $labels.name }}\\\",hostname=\\\"{{ $labels.hostname }}\\\"}\"}]"
 
   - name: docker-infrastructure
     rules:
