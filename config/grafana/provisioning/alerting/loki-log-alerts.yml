@@ -6,7 +6,8 @@ groups:
     interval: 1m
     rules:
       # Alert for critical HTTP errors in logs
-      - title: Critical HTTP Errors
+      - uid: critical-http-errors
+        title: Critical HTTP Errors
         condition: |
           sum(count_over_time({job="docker"} |= "500" |= "501" |= "502" |= "503" |= "504" |= "505" |= "401" |= "403" |= "404" [5m])) > 5
         for: 2m
@@ -19,7 +20,8 @@ groups:
           logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{job=\\\"docker\\\"} |= \\\"500\\\" |= \\\"501\\\" |= \\\"502\\\" |= \\\"503\\\" |= \\\"504\\\" |= \\\"505\\\" |= \\\"401\\\" |= \\\"403\\\" |= \\\"404\\\"\"}]"
 
       # Alert for general errors in logs
-      - title: General Errors
+      - uid: general-errors
+        title: General Errors
         condition: |
           sum(count_over_time({job="docker"} |= "error" |= "failed" |= "exception" |= "timeout" |= "connection refused" [5m])) > 10
         for: 3m
@@ -32,7 +34,8 @@ groups:
           logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{job=\\\"docker\\\"} |= \\\"error\\\" |= \\\"failed\\\" |= \\\"exception\\\" |= \\\"timeout\\\" |= \\\"connection refused\\\"\"}]"
 
       # Alert for authentication errors
-      - title: Authentication Errors
+      - uid: auth-errors
+        title: Authentication Errors
         condition: |
           sum(count_over_time({job="docker"} |= "401" |= "403" |= "unauthorized" |= "forbidden" [5m])) > 3
         for: 2m
@@ -45,7 +48,8 @@ groups:
           logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{job=\\\"docker\\\"} |= \\\"401\\\" |= \\\"403\\\" |= \\\"unauthorized\\\" |= \\\"forbidden\\\"\"}]"
 
       # Alert for server errors
-      - title: Server Errors
+      - uid: server-errors
+        title: Server Errors
         condition: |
           sum(count_over_time({job="docker"} |= "500" |= "502" |= "503" |= "504" |= "505" |= "internal server error" [5m])) > 3
         for: 2m
@@ -58,7 +62,8 @@ groups:
           logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{job=\\\"docker\\\"} |= \\\"500\\\" |= \\\"502\\\" |= \\\"503\\\" |= \\\"504\\\" |= \\\"505\\\" |= \\\"internal server error\\\"\"}]"
 
       # Alert for Docker-specific errors
-      - title: Docker Errors
+      - uid: docker-errors
+        title: Docker Errors
         condition: |
           sum(count_over_time({job="docker"} |= "container" |= "image" |= "permission" |= "network" |= "volume" |= "docker" [5m])) > 2
         for: 2m
