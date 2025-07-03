@@ -17,8 +17,6 @@ scrape_configs:
         filters:
           - name: name
             values: ['.*']
-        # Don't filter out any containers initially
-        include_containers: true
     relabel_configs:
       # Keep all containers by default
       - source_labels: ['__meta_docker_container_name']
