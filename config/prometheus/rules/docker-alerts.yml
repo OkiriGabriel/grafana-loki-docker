@@ -11,10 +11,40 @@ groups:
           type: container
           container: "{{ $labels.name }}"
           hostname: "{{ $labels.hostname }}"
-          app: "{{ $labels.job }}"
+          app: "{{ $labels.name }}"
         annotations:
           summary: "Container {{ $labels.name }} is down"
           description: "Container {{ $labels.name }} has been down for more than 1 minute on host {{ $labels.hostname }}"
+
+      # Container Exited/Stopped (more reliable)
+      - alert: ContainerExited
+        expr: container_state{state="exited"} == 1
+        for: 30s
+        labels:
+          severity: critical
+          team: infrastructure
+          type: container
+          container: "{{ $labels.name }}"
+          hostname: "{{ $labels.hostname }}"
+          app: "{{ $labels.name }}"
+        annotations:
+          summary: "Container {{ $labels.name }} has exited"
+          description: "Container {{ $labels.name }} has exited/stopped on host {{ $labels.hostname }}"
+
+      # Container Not Running
+      - alert: ContainerNotRunning
+        expr: container_state{state="running"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: infrastructure
+          type: container
+          container: "{{ $labels.name }}"
+          hostname: "{{ $labels.hostname }}"
+          app: "{{ $labels.name }}"
+        annotations:
+          summary: "Container {{ $labels.name }} is not running"
+          description: "Container {{ $labels.name }} is not in running state on host {{ $labels.hostname }}"
 
       # Service Down (for non-container services)
       - alert: ServiceDown
@@ -40,11 +70,11 @@ groups:
           team: infrastructure
           type: container
           container: "{{ $labels.name }}"
-          hostname: "{{ $labels.instance }}"
-          app: "{{ $labels.job }}"
+          hostname: "{{ $labels.hostname }}"
+          app: "{{ $labels.name }}"
         annotations:
           summary: "Container {{ $labels.name }} is restarting frequently"
-          description: "Container {{ $labels.name }} has restarted more than 5 times in the last 15 minutes on host {{ $labels.instance }}"
+          description: "Container {{ $labels.name }} has restarted more than 5 times in the last 15 minutes on host {{ $labels.hostname }}"
 
       # Container in Restarting State
       - alert: ContainerInRestartingState
@@ -55,11 +85,11 @@ groups:
           team: infrastructure
           type: container
           container: "{{ $labels.name }}"
-          hostname: "{{ $labels.instance }}"
-          app: "{{ $labels.job }}"
+          hostname: "{{ $labels.hostname }}"
+          app: "{{ $labels.name }}"
         annotations:
           summary: "Container {{ $labels.name }} is in restarting state"
-          description: "Container {{ $labels.name }} is neither running nor exited (likely restarting) on host {{ $labels.instance }}"
+          description: "Container {{ $labels.name }} is neither running nor exited (likely restarting) on host {{ $labels.hostname }}"
 
       # Container Exit Code Non-Zero
       - alert: ContainerExitedWithError
@@ -70,11 +100,11 @@ groups:
           team: infrastructure
           type: container
           container: "{{ $labels.name }}"
-          hostname: "{{ $labels.instance }}"
-          app: "{{ $labels.job }}"
+          hostname: "{{ $labels.hostname }}"
+          app: "{{ $labels.name }}"
         annotations:
           summary: "Container {{ $labels.name }} exited with error code {{ $value }}"
-          description: "Container {{ $labels.name }} exited with non-zero exit code {{ $value }} on host {{ $labels.instance }}"
+          description: "Container {{ $labels.name }} exited with non-zero exit code {{ $value }} on host {{ $labels.hostname }}"
 
       # Container High Memory Usage
       - alert: ContainerHighMemoryUsage
@@ -85,11 +115,11 @@ groups:
           team: infrastructure
           type: container
           container: "{{ $labels.name }}"
-          hostname: "{{ $labels.instance }}"
-          app: "{{ $labels.job }}"
+          hostname: "{{ $labels.hostname }}"
+          app: "{{ $labels.name }}"
         annotations:
           summary: "Container {{ $labels.name }} high memory usage"
-          description: "Container {{ $labels.name }} is using more than 85% of memory limit on host {{ $labels.instance }}"
+          description: "Container {{ $labels.name }} is using more than 85% of memory limit on host {{ $labels.hostname }}"
 
       # Container High CPU Usage
       - alert: ContainerHighCPUUsage
@@ -100,11 +130,11 @@ groups:
           team: infrastructure
           type: container
           container: "{{ $labels.name }}"
-          hostname: "{{ $labels.instance }}"
-          app: "{{ $labels.job }}"
+          hostname: "{{ $labels.hostname }}"
+          app: "{{ $labels.name }}"
         annotations:
           summary: "Container {{ $labels.name }} high CPU usage"
-          description: "Container {{ $labels.name }} is using more than 80% CPU on host {{ $labels.instance }}"
+          description: "Container {{ $labels.name }} is using more than 80% CPU on host {{ $labels.hostname }}"
 
   - name: docker-business-failures
     rules:
@@ -206,11 +236,11 @@ groups:
           team: infrastructure
           type: memory_leak
           container: "{{ $labels.name }}"
-          hostname: "{{ $labels.instance }}"
-          app: "{{ $labels.job }}"
+          hostname: "{{ $labels.hostname }}"
+          app: "{{ $labels.name }}"
         annotations:
           summary: "Possible memory leak in {{ $labels.name }}"
-          description: "Container {{ $labels.name }} memory usage increased by {{ $value }} bytes in the last hour on host {{ $labels.instance }}"
+          description: "Container {{ $labels.name }} memory usage increased by {{ $value }} bytes in the last hour on host {{ $labels.hostname }}"
 
 
 
@@ -248,6 +278,9 @@ groups:
           severity: warning
           team: infrastructure
           type: resource_limit
+          container: "system-wide"
+          hostname: "{{ $labels.instance }}"
+          app: "docker-system"
         annotations:
           summary: "Too many containers running on {{ $labels.instance }}"
           description: "More than 50 containers are running on {{ $labels.instance }}" 

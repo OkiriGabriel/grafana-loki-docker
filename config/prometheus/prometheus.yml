@@ -26,14 +26,10 @@ scrape_configs:
     static_configs:
       - targets: ['node-exporter:9100']
     relabel_configs:
-      # Get hostname from node_uname_info metric
+      # Set proper hostname for system metrics
       - source_labels: [__address__]
-        target_label: __tmp_address
-        regex: 'node-exporter:9100'
-        replacement: '${1}'
-      - source_labels: [__tmp_address]
         target_label: instance
-        regex: '.*'
+        regex: 'node-exporter:9100'
         replacement: '${HOSTNAME}'
         action: replace
       # Set hostname label for better display
@@ -46,14 +42,10 @@ scrape_configs:
     static_configs:
       - targets: ['cadvisor:8080']
     relabel_configs:
-      # Get hostname from container metrics
+      # Set proper hostname for container metrics
       - source_labels: [__address__]
-        target_label: __tmp_address
-        regex: 'cadvisor:8080'
-        replacement: '${1}'
-      - source_labels: [__tmp_address]
         target_label: instance
-        regex: '.*'
+        regex: 'cadvisor:8080'
         replacement: '${HOSTNAME}'
         action: replace
       # Set hostname label for better display
