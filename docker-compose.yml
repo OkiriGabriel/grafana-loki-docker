@@ -106,27 +106,19 @@ services:
 
   # Cadvisor - Container Metrics
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
+    image: gcr.io/cadvisor/cadvisor:v0.47.2  # Stick to a stable version
     container_name: cadvisor
     restart: unless-stopped
     ports:
       - "8080:8080"
     privileged: true
-    devices:
-      - /dev/kmsg:/dev/kmsg
     volumes:
       - /:/rootfs:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro    # Explicit Docker socket mount
       - /var/run:/var/run:ro
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
-      - /dev/disk/:/dev/disk:ro
     networks:
       - monitoring
-
-
-
-
 
 
 volumes:
