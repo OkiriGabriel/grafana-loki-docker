@@ -1,111 +1,176 @@
-apiVersion: 1
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
 
-groups:
-  - name: Loki Log Alerts
-    folder: Loki
-    interval: 1m
-    rules:
-      # Alert for critical HTTP errors in logs
-      - uid: critical-http-errors
-        title: Critical HTTP Errors
-        condition: A
-        for: 2m
-        labels:
-          severity: critical
-          team: infrastructure
-        annotations:
-          summary: "🚨 CRITICAL: Critical HTTP errors detected in logs"
-          description: "Critical HTTP errors (401, 403, 404, 500, 501, 502, 503) detected in container logs"
-          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{job=\\\"docker\\\"} |= \\\"500\\\" |= \\\"501\\\" |= \\\"502\\\" |= \\\"503\\\" |= \\\"504\\\" |= \\\"505\\\" |= \\\"401\\\" |= \\\"403\\\" |= \\\"404\\\"\"}]"
-        data:
-          - refId: A
-            datasourceUid: loki
-            model:
-              expr: '{job="docker"} |= "500" |= "501" |= "502" |= "503" |= "504" |= "505" |= "401" |= "403" |= "404"'
-              instant: false
-              range: true
-              maxLines: 1000
+positions:
+  filename: /tmp/positions.yaml
 
-      # Alert for general errors in logs
-      - uid: general-errors
-        title: General Errors
-        condition: A
-        for: 3m
-        labels:
-          severity: warning
-          team: infrastructure
-        annotations:
-          summary: "⚠️ WARNING: General errors detected in logs"
-          description: "General errors (error, failed, exception, timeout, connection refused) detected in container logs"
-          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{job=\\\"docker\\\"} |= \\\"error\\\" |= \\\"failed\\\" |= \\\"exception\\\" |= \\\"timeout\\\" |= \\\"connection refused\\\"\"}]"
-        data:
-          - refId: A
-            datasourceUid: loki
-            model:
-              expr: '{job="docker"} |= "error" |= "failed" |= "exception" |= "timeout" |= "connection refused"'
-              instant: false
-              range: true
-              maxLines: 1000
+clients:
+  - url: http://loki:3100/loki/api/v1/push
 
-      # Alert for authentication errors
-      - uid: auth-errors
-        title: Authentication Errors
-        condition: A
-        for: 2m
-        labels:
-          severity: critical
-          team: infrastructure
-        annotations:
-          summary: "🚨 CRITICAL: Authentication errors detected in logs"
-          description: "Authentication errors (401, 403, unauthorized, forbidden) detected in container logs"
-          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{job=\\\"docker\\\"} |= \\\"401\\\" |= \\\"403\\\" |= \\\"unauthorized\\\" |= \\\"forbidden\\\"\"}]"
-        data:
-          - refId: A
-            datasourceUid: loki
-            model:
-              expr: '{job="docker"} |= "401" |= "403" |= "unauthorized" |= "forbidden"'
-              instant: false
-              range: true
-              maxLines: 1000
+scrape_configs:
+  # Docker container logs
+  - job_name: docker
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+        filters:
+          - name: name
+            values: ['.*']
+    relabel_configs:
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/(.*)'
+        target_label: 'container'
+      - source_labels: ['__meta_docker_container_log_stream']
+        target_label: 'logstream'
+      - source_labels: ['__meta_docker_container_label_logging_jobname']
+        target_label: 'job'
+      - source_labels: ['__meta_docker_container_label_com_docker_compose_service']
+        target_label: 'service'
+      - source_labels: ['__meta_docker_container_label_com_docker_compose_project']
+        target_label: 'project'
+      - source_labels: ['__meta_docker_container_label_logging_level']
+        target_label: 'level'
+      - source_labels: ['__meta_docker_container_label_logging_app']
+        target_label: 'app'
+      - source_labels: ['__meta_docker_container_image']
+        target_label: 'image'
+      - source_labels: ['__meta_docker_container_id']
+        target_label: 'container_id'
+      # Set the actual hostname for this server
+      - target_label: 'hostname'
+        replacement: '${HOSTNAME:-localhost}'
+    pipeline_stages:
+      # Try to parse JSON logs first
+      - json:
+          expressions:
+            timestamp: timestamp
+            level: level
+            message: message
+            service: service
+            trace_id: trace_id
+            user_id: user_id
 
-      # Alert for server errors
-      - uid: server-errors
-        title: Server Errors
-        condition: A
-        for: 2m
-        labels:
-          severity: critical
-          team: infrastructure
-        annotations:
-          summary: "🚨 CRITICAL: Server errors detected in logs"
-          description: "Server errors (500, 502, 503, 504, 505, internal server error) detected in container logs"
-          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{job=\\\"docker\\\"} |= \\\"500\\\" |= \\\"502\\\" |= \\\"503\\\" |= \\\"504\\\" |= \\\"505\\\" |= \\\"internal server error\\\"\"}]"
-        data:
-          - refId: A
-            datasourceUid: loki
-            model:
-              expr: '{job="docker"} |= "500" |= "502" |= "503" |= "504" |= "505" |= "internal server error"'
-              instant: false
-              range: true
-              maxLines: 1000
+      # Extract labels from JSON
+      - labels:
+          timestamp:
+          level:
+          service:
+          trace_id:
+          user_id:
 
-      # Alert for Docker-specific errors
-      - uid: docker-errors
-        title: Docker Errors
-        condition: A
-        for: 2m
+      # Parse timestamp if available
+      - timestamp:
+          source: timestamp
+          format: RFC3339Nano
+
+      # For non-JSON logs, extract patterns
+      - regex:
+          expression: '(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) (?P<level>\w+) - (?P<message>.*)'
+          source: message
+
+      # Extract Java exception patterns
+      - regex:
+          expression: '(?P<exception>java\.lang\.[\w.]+Exception)'
+          source: message
+
+      # Extract error patterns
+      - regex:
+          expression: '(?P<error_type>failed|error|errored|Exception|ERROR)'
+          source: message
+
+      # Extract success patterns
+      - regex:
+          expression: '(?P<success_type>success|completed|SUCCESS)'
+          source: message
+
+      # Add labels for pattern matching
+      - labels:
+          exception:
+          error_type:
+          success_type:
+
+      # Output the message
+      - output:
+          source: message
+
+  # System logs
+  - job_name: system
+    static_configs:
+      - targets:
+          - localhost
         labels:
-          severity: critical
-          team: infrastructure
-        annotations:
-          summary: "🚨 CRITICAL: Docker errors detected in logs"
-          description: "Docker-specific errors (container, image, permission, network, volume, docker) detected in container logs"
-          logs: "http://localhost:3000/explore?left=[\"now-5m\",\"now\",\"Loki\",{\"expr\":\"{job=\\\"docker\\\"} |= \\\"container\\\" |= \\\"image\\\" |= \\\"permission\\\" |= \\\"network\\\" |= \\\"volume\\\" |= \\\"docker\\\"\"}]"
-        data:
-          - refId: A
-            datasourceUid: loki
-            model:
-              expr: '{job="docker"} |= "container" |= "image" |= "permission" |= "network" |= "volume" |= "docker"'
-              instant: false
-              range: true
-              maxLines: 1000
+          job: varlogs
+          hostname: '${HOSTNAME:-localhost}'
+          __path__: /var/log/*log
+
+  # Application logs
+  - job_name: applications
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: app-logs
+          hostname: '${HOSTNAME:-localhost}'
+          __path__: /var/log/applications/*.log
+
+  # Custom log paths for your applications
+  - job_name: remittance-logs
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: remittance
+          product: remittance
+          hostname: '${HOSTNAME:-localhost}'
+          __path__: /var/log/remittance/*.log
+
+  - job_name: collection-logs
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: collection
+          product: collection
+          hostname: '${HOSTNAME:-localhost}'
+          __path__: /var/log/collection/*.log
+
+  - job_name: agency-logs
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: agency
+          product: agency
+          hostname: '${HOSTNAME:-localhost}'
+          __path__: /var/log/agency/*.log
+
+  # Nginx logs
+  - job_name: nginx
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: nginx
+          hostname: '${HOSTNAME:-localhost}'
+          __path__: /var/log/nginx/*.log
+
+  # Apache logs
+  - job_name: apache
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: apache
+          hostname: '${HOSTNAME:-localhost}'
+          __path__: /var/log/apache2/*.log
+
+  # Docker events (for container lifecycle monitoring)
+  - job_name: docker-events
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: docker-events
+          hostname: '${HOSTNAME:-localhost}'
+          __path__: /var/lib/docker/containers/*/*-json.log 

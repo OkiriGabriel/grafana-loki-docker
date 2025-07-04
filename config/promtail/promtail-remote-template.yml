@@ -1,4 +1,4 @@
-# Promtail Configuration Template for Remote Servers
+# Promtail Configuration Template for Remote Servers67
 # Copy this file to each remote server and customize the HOSTNAME
 
 server:
@@ -177,4 +177,4 @@ scrape_configs:
         labels:
           job: docker-events
           hostname: 'YOUR_SERVER_HOSTNAME'  # Replace with actual hostname
-          __path__: /var/lib/docker/containers/*/*-json.log 
+          __path__: /var/lib/docker/containers/*/*-json.log
